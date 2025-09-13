@@ -70,7 +70,7 @@ For the best development experience, install these VSCode extensions:
 
    ```bash
    # Start PostgreSQL, Redis, and pgAdmin for development
-   docker-compose -f docker-compose.dev.yml up -d
+   docker compose -f docker-compose.dev.yml up -d
    ```
 
 6. **Set up the database**
