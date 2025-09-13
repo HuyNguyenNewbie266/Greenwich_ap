@@ -1,98 +1,144 @@
+# Greenwich Academic Programme Management System
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<p align="center">A comprehensive Academic Programme Management System built with <a href="http://nodejs.org" target="_blank">Node.js</a> and the progressive <a href="http://nestjs.com" target="_blank">NestJS</a> framework.</p>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+<p align="center">
+<img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node Version" />
+<img src="https://img.shields.io/badge/yarn-%3E%3D1.22.0-brightgreen" alt="Yarn Version" />
+<img src="https://img.shields.io/badge/typescript-%5E5.7.3-blue" alt="TypeScript" />
+<img src="https://img.shields.io/badge/nestjs-%5E11.0.0-red" alt="NestJS" />
+<img src="https://img.shields.io/badge/postgresql-15-blue" alt="PostgreSQL" />
+<img src="https://img.shields.io/badge/docker-ready-blue" alt="Docker Ready" />
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## 📋 Table of Contents
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Creating New Modules](#creating-new-modules)
+- [Database Migrations](#database-migrations)
 
-## Project setup
+## 🔧 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (>= 18.0.0)
+- **Yarn** (>= 1.22.0)
+- **Docker & Docker Compose**
+
+## Recommended VSCode Extensions
+
+For the best development experience, install these VSCode extensions:
+
+- Prettier - Code formatter (esbenp.prettier-vscode)
+- ESLint (dbaeumer.vscode-eslint)
+
+## 🚀 Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd greenwich-ap-backend
+   ```
+
+2. **Install NestJS CLI globally**
+
+   ```bash
+   yarn global add @nestjs/cli
+   ```
+
+3. **Install project dependencies**
+
+   ```bash
+   yarn install
+   ```
+
+4. **Set up environment variables**
+
+   ```bash
+   # Copy environment template files
+   cp .env.example .env
+   cp .env.example .env.development
+   ```
+
+5. **Set up the database**
+   1. Open pgAdmin in your browser: http://localhost:5050
+   2. Login with credentials:
+      - Email: `admin@greenwich.edu`
+      - Password: `secret`
+   3. Right-click on "Servers" → "Create" → "Server"
+   4. In "General" tab:
+      - Name: `Greenwich Local`
+   5. In "Connection" tab:
+      - Host: `postgres` (if using Docker) or `localhost`
+      - Port: `5432`
+      - Username: `root`
+      - Password: `secret`
+   6. Click "Save"
+   7. Right-click on the server → "Create" → "Database"
+   8. Database name: `greenwich_ap`
+   9. Click "Save"
+
+6. **Start the development server**
+   ```bash
+   yarn start:dev
+   ```
+
+## 🏗️ Creating New Modules
+
+Use the NestJS CLI to generate new modules and resources:
 
 ```bash
-$ npm install
+# Navigate to the modules directory
+cd src/modules
+
+# Generate a complete CRUD resource (recommended)
+nest g res ResourceName
+
+# Generate individual components
+nest g module ModuleName
+nest g controller ControllerName
+nest g service ServiceName
+nest g guard GuardName
+nest g interceptor InterceptorName
+nest g pipe PipeName
+nest g filter FilterName
+
+# Generate with specific path
+nest g module modules/custom-module
 ```
 
-## Compile and run the project
+## 🗃️ Database Migrations
+
+### Migration Commands
 
 ```bash
-# development
-$ npm run start
+# Generate a new migration based on entity changes
+yarn migration:generate src/database/migrations/MigrationName
 
-# watch mode
-$ npm run start:dev
+# Create an empty migration file
+yarn migration:create src/database/migrations/MigrationName
 
-# production mode
-$ npm run start:prod
+# Run all pending migrations
+yarn migration:run
+
+# Revert the last executed migration
+yarn migration:revert
+
+# Show migration status
+yarn typeorm migration:show
+
+# Run database seeds
+yarn seed:run
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+<p align="center">
+  Built with ❤️ for Greenwich University Academic Programme Management
+</p>
