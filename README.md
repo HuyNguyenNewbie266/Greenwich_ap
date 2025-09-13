@@ -66,7 +66,14 @@ For the best development experience, install these VSCode extensions:
    cp .env.example .env.development
    ```
 
-5. **Set up the database**
+5. **Start Docker services**
+
+   ```bash
+   # Start PostgreSQL, Redis, and pgAdmin for development
+   docker-compose -f docker-compose.dev.yml up -d
+   ```
+
+6. **Set up the database**
    1. Open pgAdmin in your browser: http://localhost:5050
    2. Login with credentials:
       - Email: `admin@greenwich.edu`
@@ -84,7 +91,7 @@ For the best development experience, install these VSCode extensions:
    8. Database name: `greenwich_ap`
    9. Click "Save"
 
-6. **Start the development server**
+7. **Start the development server**
    ```bash
    yarn start:dev
    ```
