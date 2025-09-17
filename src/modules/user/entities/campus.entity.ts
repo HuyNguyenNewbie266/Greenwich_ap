@@ -1,50 +1,21 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { User } from './user.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
-@Entity('campuses')
+@Entity({ name: 'campus' })
 export class Campus {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint', unsigned: true })
-  @ApiProperty({ example: 1, description: 'Unique identifier' })
-  id: number;
+  @ApiProperty()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id!: number;
 
-  @Column({ type: 'varchar', length: 150, unique: true })
-  @ApiProperty({
-    type: String,
-    description: 'Campus name',
-    example: 'Greenwich University London Campus',
-  })
-  name: string;
+  @ApiProperty()
+  @Column({ length: 100, unique: true })
+  code!: string;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
-  @ApiProperty({
-    type: String,
-    description: 'Campus code',
-    example: 'GUL',
-  })
-  code: string;
+  @ApiProperty()
+  @Column({ length: 150 })
+  name!: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  @ApiProperty({
-    example: '2023-01-01T00:00:00Z',
-    description: 'Creation timestamp',
-  })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  @ApiProperty({
-    example: '2023-01-01T00:00:00Z',
-    description: 'Last update timestamp',
-  })
-  updatedAt: Date;
-
-  @OneToMany(() => User, (user) => user.campus)
-  users: User[];
+  @OneToMany(() => User, (u) => u.campus)
+  users?: User[];
 }

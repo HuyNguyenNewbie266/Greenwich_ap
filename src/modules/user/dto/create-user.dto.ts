@@ -1,66 +1,59 @@
+import { SwaggerProperty } from '../../../common/decorators/swagger.decorator';
 import {
   IsEmail,
-  IsEnum,
-  IsNumber,
   IsOptional,
   IsString,
-  MinLength,
+  IsEnum,
+  IsNumber,
 } from 'class-validator';
-import { Gender, UserStatus } from '../entities/user.entity';
 
 export class CreateUserDto {
-  @IsNumber()
-  roleId: number;
-
-  @IsOptional()
-  @IsNumber()
-  campusId?: number;
-
+  @SwaggerProperty({
+    description: 'Email address',
+    example: 'alice@example.com',
+  })
   @IsEmail()
-  email: string;
+  email!: string;
 
-  @IsString()
-  @MinLength(6)
-  password: string;
-
+  @SwaggerProperty({
+    description: 'Plain password (will be hashed)',
+    required: false,
+    writeOnly: true,
+  })
   @IsOptional()
   @IsString()
-  phone?: string;
+  password?: string;
 
-  @IsOptional()
-  @IsString()
-  phoneAlt?: string;
-
-  @IsOptional()
-  @IsString()
-  address?: string;
-
-  @IsOptional()
-  @IsString()
-  surname?: string;
-
-  @IsOptional()
-  @IsString()
-  middleName?: string;
-
+  @SwaggerProperty({ description: 'Given name', required: false })
   @IsOptional()
   @IsString()
   givenName?: string;
 
-  @IsEnum(Gender)
-  gender: Gender;
-
-  @IsOptional()
-  dateOfBirth?: Date;
-
+  @SwaggerProperty({ description: 'Surname', required: false })
   @IsOptional()
   @IsString()
-  avatar?: string;
+  surname?: string;
 
+  @SwaggerProperty({ description: 'Role id (existing role)', example: 2 })
+  @IsNumber()
+  roleId!: number;
+
+  @SwaggerProperty({ description: 'Campus id', required: false })
   @IsOptional()
-  @IsString()
-  note?: string;
+  @IsNumber()
+  campusId?: number;
 
-  @IsEnum(UserStatus)
-  status: UserStatus;
+  @SwaggerProperty({
+    description: 'Gender',
+    required: false,
+    enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'],
+  })
+  @IsOptional()
+  @IsEnum([
+    'MALE' as const,
+    'FEMALE' as const,
+    'OTHER' as const,
+    'UNSPECIFIED' as const,
+  ])
+  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
 }

@@ -6,6 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiController,
@@ -20,43 +23,55 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiController('users')
+@ApiController('Users')
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
+@ApiBearerAuth('access-token')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly svc: UserService) {}
 
   @Post()
   @ApiCreateOperation(User)
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.userService.create(createUserDto);
+  create(@Body() dto: CreateUserDto) {
+    return this.svc.create(dto);
   }
 
   @Get()
   @ApiFindAllOperation(User)
   @ApiPaginationQuery()
-  findAll(): Promise<User[]> {
-    return this.userService.findAll();
+  findAll(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('search') search?: string,
+  ) {
+    return this.svc.findAll({
+      page: Number(page) || 1,
+      limit: Number(limit) || 25,
+      search,
+    });
   }
 
   @Get(':id')
   @ApiFindOneOperation(User)
-  findOne(@Param('id') id: string): Promise<User> {
-    return this.userService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.svc.findOne(id);
   }
 
   @Patch(':id')
   @ApiUpdateOperation(User)
-  update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<User> {
-    return this.userService.update(+id, updateUserDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
+    return this.svc.update(id, dto);
   }
 
   @Delete(':id')
   @ApiDeleteOperation(User)
-  remove(@Param('id') id: string): Promise<void> {
-    return this.userService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.svc.remove(id);
   }
 }

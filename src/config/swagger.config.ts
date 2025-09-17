@@ -157,8 +157,4 @@ export const setupSwagger = (
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
     ],
   });
-
-  console.log(
-    `\n🚀 Swagger documentation available at: http://localhost:${process.env.PORT || 3000}/${swaggerPath}`,
-  );
 };

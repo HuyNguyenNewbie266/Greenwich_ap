@@ -26,7 +26,7 @@ async function bootstrap() {
   });
 
   // Global prefix
-  app.setGlobalPrefix(process.env.API_PREFIX || 'api/v1');
+  app.setGlobalPrefix(process.env.API_PREFIX || 'api');
 
   // Global pipes
   app.useGlobalPipes(
