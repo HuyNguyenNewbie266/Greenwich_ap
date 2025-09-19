@@ -6,6 +6,7 @@ import jwtConfig from './config/jwt.config';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 
+import { CourseModule } from './modules/course/course.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,6 +22,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    CourseModule,
   ],
   controllers: [],
   providers: [],
