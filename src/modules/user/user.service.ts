@@ -138,4 +138,41 @@ export class UserService {
 
     return this.userRepo.save(ent);
   }
+
+  async updateRefreshToken(
+    userId: number,
+    refreshToken: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    await this.userRepo.update(userId, {
+      refreshToken,
+      refreshTokenExpiresAt: expiresAt,
+    });
+  }
+
+  async findByRefreshToken(refreshToken: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { refreshToken },
+      relations: ['role', 'campus'],
+    });
+  }
+
+  async clearRefreshToken(userId: number): Promise<void> {
+    await this.userRepo.update(userId, {
+      refreshToken: null,
+      refreshTokenExpiresAt: null,
+    });
+  }
+
+  async clearExpiredRefreshTokens(): Promise<void> {
+    await this.userRepo.update(
+      {
+        refreshTokenExpiresAt: new Date(),
+      },
+      {
+        refreshToken: null,
+        refreshTokenExpiresAt: null,
+      },
+    );
+  }
 }

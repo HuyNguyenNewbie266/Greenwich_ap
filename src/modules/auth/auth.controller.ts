@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
 import { GoogleUserDto } from './dto/google-user.dto';
-import { LoginResponseDto } from './dto/login-response.dto';
+import { LoginResponseDto, RefreshResponseDto } from './dto/login-response.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../user/entities/user.entity';
 import { ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -13,6 +13,7 @@ import {
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { LoginDto } from './dto/login.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 interface GoogleAuthRequest extends Request {
   user?: GoogleUserDto;
@@ -80,5 +81,41 @@ export class AuthController {
     }
 
     return req.user;
+  }
+
+  @Post('refresh')
+  @ApiOperation({ summary: 'Refresh access token using refresh token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Tokens refreshed successfully',
+    type: RefreshResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid or expired refresh token',
+  })
+  @CommonApiResponses()
+  async refresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<RefreshResponseDto> {
+    return await this.authService.refreshTokens(refreshTokenDto);
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Logout user and revoke refresh tokens' })
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful',
+  })
+  @CommonApiResponses()
+  async logout(@Req() req: JwtAuthRequest): Promise<{ message: string }> {
+    if (!req.user) {
+      throw new Error('No authenticated user found');
+    }
+
+    await this.authService.logout(req.user.id);
+    return { message: 'Logout successful' };
   }
 }
