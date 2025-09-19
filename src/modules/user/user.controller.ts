@@ -26,13 +26,11 @@ import { User } from './entities/user.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiController('Users')
+@ApiController('Users', { requireAuth: true })
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
-@ApiBearerAuth('access-token')
 export class UserController {
   constructor(private readonly svc: UserService) {}
 
