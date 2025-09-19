@@ -18,14 +18,12 @@ export class AuthService {
 
   async handleGoogleLogin(profile: GoogleUserDto): Promise<LoginResponseDto> {
     try {
-      let user: User | null = await this.userService.findByEmail(profile.email);
+      const user: User | null = await this.userService.findByEmail(
+        profile.email,
+      );
 
       if (!user) {
-        user = await this.userService.createFromGoogle(profile);
-      }
-
-      if (!user) {
-        throw new UnauthorizedException('Unable to login/create user');
+        throw new UnauthorizedException('Unable to login');
       }
 
       const tokens = this.generateTokens(user);

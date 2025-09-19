@@ -7,7 +7,6 @@ import { Role } from './entities/role.entity';
 import { Campus } from './entities/campus.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { GoogleUserDto } from '../auth/dto/google-user.dto';
 
 @Injectable()
 export class UserService {
@@ -110,33 +109,6 @@ export class UserService {
 
   async remove(id: number): Promise<void> {
     await this.userRepo.delete(id);
-  }
-
-  // For OAuth: find or create using google profile
-  async createFromGoogle(profile: GoogleUserDto): Promise<User> {
-    const existing = await this.findByEmail(profile.email);
-    if (existing) return existing;
-
-    const defaultRole = await this.roleRepo.findOne({
-      where: { name: 'Student' },
-    });
-
-    if (!defaultRole) {
-      throw new NotFoundException('No role available to assign');
-    }
-
-    const ent = this.userRepo.create({
-      roleId: defaultRole.id,
-      role: defaultRole,
-      email: profile.email,
-      password: null,
-      givenName: profile.givenName ?? null,
-      surname: profile.surname ?? null,
-      avatar: profile.avatarUrl ?? null,
-      gender: 'UNSPECIFIED',
-    } as Partial<User>);
-
-    return this.userRepo.save(ent);
   }
 
   async updateRefreshToken(
