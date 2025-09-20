@@ -36,7 +36,6 @@ export class AuthService {
       return {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
-        user,
       };
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -94,7 +93,6 @@ export class AuthService {
       return {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
-        user,
       };
     } catch (err: unknown) {
       if (err instanceof UnauthorizedException) {

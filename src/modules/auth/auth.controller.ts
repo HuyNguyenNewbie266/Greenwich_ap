@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request } from 'express';
 import { GoogleUserDto } from './dto/google-user.dto';
@@ -14,6 +22,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import type { Response } from 'express';
 
 interface GoogleAuthRequest extends Request {
   user?: GoogleUserDto;
@@ -56,13 +65,22 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Handle Google OAuth callback' })
   @CommonApiResponses()
-  async googleCallback(
-    @Req() req: GoogleAuthRequest,
-  ): Promise<LoginResponseDto> {
+  async googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
     if (!req.user || !req.user.email) {
       throw new Error('Google authentication failed');
     }
-    return this.authService.handleGoogleLogin(req.user);
+    const tokens = await this.authService.handleGoogleLogin(req.user);
+
+    res.cookie('access_token', tokens.accessToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    // Redirect back to frontend
+    // res.redirect('http://localhost:5173/');
   }
 
   @Get('me')
