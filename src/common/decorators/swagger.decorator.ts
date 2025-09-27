@@ -25,6 +25,7 @@ interface SwaggerPropertyOptions {
   required?: boolean;
   type?: any;
   writeOnly?: boolean;
+  readOnly?: boolean;
   enum?: any;
   isArray?: boolean;
   default?: any;
@@ -257,4 +258,88 @@ export const ApiPaginationQuery = () =>
       enum: ['ASC', 'DESC'],
       example: 'DESC',
     }),
+  );
+
+/**
+ * Student filter query parameters
+ */
+export const ApiStudentFilterQuery = () =>
+  applyDecorators(
+    ApiQuery({
+      name: 'campusId',
+      description: 'Campus ID',
+      required: false,
+      type: Number,
+      example: 1,
+    }),
+    ApiQuery({
+      name: 'mentorId',
+      description: 'Mentor ID',
+      required: false,
+      type: Number,
+      example: 10,
+    }),
+    ApiQuery({
+      name: 'status',
+      description: 'Status',
+      required: false,
+      type: String,
+    }),
+    ApiQuery({
+      name: 'academicYear',
+      description: 'Academic Year',
+      required: false,
+      type: String,
+      example: '2025-2026',
+    }),
+  );
+
+/**
+ * Standard Activate operation decorator
+ */
+export const ApiActivateOperation = <T extends Type<unknown>>(
+  entity: T,
+  summary?: string,
+) =>
+  applyDecorators(
+    ApiOperation({
+      summary: summary || `Activate ${entity.name.toLowerCase()}`,
+    }),
+    ApiParam({
+      name: 'id',
+      description: `User ID`,
+      type: 'string',
+    }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: `User has been successfully activated`,
+      type: entity,
+    }),
+    ApiNotFoundResponse({ description: `User not found` }),
+    CommonApiResponses(),
+  );
+
+/**
+ * Standard Deactivate operation decorator
+ */
+export const ApiDeactivateOperation = <T extends Type<unknown>>(
+  entity: T,
+  summary?: string,
+) =>
+  applyDecorators(
+    ApiOperation({
+      summary: summary || `Deactivate ${entity.name.toLowerCase()}`,
+    }),
+    ApiParam({
+      name: 'id',
+      description: `User ID`,
+      type: 'string',
+    }),
+    ApiResponse({
+      status: HttpStatus.OK,
+      description: `User has been successfully deactivated`,
+      type: entity,
+    }),
+    ApiNotFoundResponse({ description: `User not found` }),
+    CommonApiResponses(),
   );
