@@ -6,6 +6,8 @@ import { LoginResponseDto } from './dto/login-response.dto';
 import { JwtPayload } from './types/jwt-payload.type';
 import { User } from '../user/entities/user.entity';
 import bcrypt from 'bcrypt';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -16,25 +18,25 @@ export class AuthService {
 
   async handleGoogleLogin(profile: GoogleUserDto): Promise<LoginResponseDto> {
     try {
-      let user: User | null = await this.userService.findByEmail(profile.email);
+      const user: User | null = await this.userService.findByEmail(
+        profile.email,
+      );
 
       if (!user) {
-        user = await this.userService.createFromGoogle(profile);
+        throw new UnauthorizedException('Unable to login');
       }
 
-      if (!user) {
-        throw new UnauthorizedException('Unable to login/create user');
-      }
+      const tokens = this.generateTokens(user);
+      await this.userService.updateRefreshToken(
+        user.id,
+        tokens.refreshToken,
+        this.getRefreshTokenExpiryDate(),
+      );
 
-      const payload: JwtPayload = {
-        sub: user.id.toString(),
-        email: user.email,
-        role: user.role?.name ?? null,
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       };
-
-      const accessToken = this.jwtService.sign(payload);
-
-      return { accessToken, user };
     } catch (err: unknown) {
       if (err instanceof Error) {
         throw new UnauthorizedException(err.message);
@@ -81,15 +83,17 @@ export class AuthService {
         throw new UnauthorizedException('Invalid email or password');
       }
 
-      const payload: JwtPayload = {
-        sub: user.id.toString(),
-        email: user.email,
-        role: user.role?.name ?? null,
+      const tokens = this.generateTokens(user);
+      await this.userService.updateRefreshToken(
+        user.id,
+        tokens.refreshToken,
+        this.getRefreshTokenExpiryDate(),
+      );
+
+      return {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
       };
-
-      const accessToken = this.jwtService.sign(payload);
-
-      return { accessToken, user };
     } catch (err: unknown) {
       if (err instanceof UnauthorizedException) {
         throw err;
@@ -98,6 +102,104 @@ export class AuthService {
         throw new UnauthorizedException(err.message);
       }
       throw new UnauthorizedException('Login failed');
+    }
+  }
+
+  async refreshTokens(
+    refreshTokenDto: RefreshTokenDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    try {
+      const { refreshToken } = refreshTokenDto;
+
+      // Find user with the refresh token
+      const user = await this.userService.findByRefreshToken(refreshToken);
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      // Check if token is expired
+      if (
+        !user.refreshTokenExpiresAt ||
+        user.refreshTokenExpiresAt < new Date()
+      ) {
+        // Clear expired token
+        await this.userService.clearRefreshToken(user.id);
+        throw new UnauthorizedException('Refresh token expired');
+      }
+
+      // Generate new tokens
+      const tokens = this.generateTokens(user);
+
+      // Store new refresh token
+      await this.userService.updateRefreshToken(
+        user.id,
+        tokens.refreshToken,
+        this.getRefreshTokenExpiryDate(),
+      );
+
+      return tokens;
+    } catch (err: unknown) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
+      if (err instanceof Error) {
+        throw new UnauthorizedException(err.message);
+      }
+      throw new UnauthorizedException('Token refresh failed');
+    }
+  }
+
+  private generateTokens(user: User): {
+    accessToken: string;
+    refreshToken: string;
+  } {
+    const payload: JwtPayload = {
+      sub: user.id.toString(),
+      email: user.email,
+      role: user.role?.name ?? null,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
+    });
+
+    const refreshToken = randomBytes(64).toString('hex');
+
+    return { accessToken, refreshToken };
+  }
+
+  private getRefreshTokenExpiryDate(): Date {
+    const expiresAt = new Date();
+    const refreshTokenExpiry = process.env.JWT_REFRESH_EXPIRES_IN ?? '7d';
+
+    // Parse expiry string (simple implementation for common formats)
+    if (refreshTokenExpiry.endsWith('d')) {
+      const days = parseInt(refreshTokenExpiry.slice(0, -1));
+      expiresAt.setDate(expiresAt.getDate() + days);
+    } else if (refreshTokenExpiry.endsWith('h')) {
+      const hours = parseInt(refreshTokenExpiry.slice(0, -1));
+      expiresAt.setHours(expiresAt.getHours() + hours);
+    } else if (refreshTokenExpiry.endsWith('m')) {
+      const minutes = parseInt(refreshTokenExpiry.slice(0, -1));
+      expiresAt.setMinutes(expiresAt.getMinutes() + minutes);
+    } else {
+      // Default to 7 days
+      expiresAt.setDate(expiresAt.getDate() + 7);
+    }
+
+    return expiresAt;
+  }
+
+  async cleanupExpiredTokens(): Promise<void> {
+    await this.userService.clearExpiredRefreshTokens();
+  }
+
+  async logout(userId: number): Promise<void> {
+    try {
+      await this.userService.clearRefreshToken(userId);
+    } catch (err: unknown) {
+      console.error('Error during logout token cleanup:', err);
     }
   }
 }

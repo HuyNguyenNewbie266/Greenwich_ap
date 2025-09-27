@@ -37,8 +37,10 @@ interface JwtAuthRequest extends Request {
   user?: User;
 }
 
-@ApiController('Users')
+@ApiController('Users', { requireAuth: true })
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

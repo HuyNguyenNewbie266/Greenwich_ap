@@ -109,7 +109,7 @@ export const ApiController = (
 ) =>
   applyDecorators(
     ApiTags(tag),
-    ...(options?.requireAuth !== false ? [ApiBearerAuth()] : []),
+    ...(options?.requireAuth !== false ? [ApiBearerAuth('access-token')] : []),
   );
 
 /**
