@@ -7,7 +7,6 @@ import { Role } from './entities/role.entity';
 import { Campus } from './entities/campus.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { GoogleUserDto } from '../auth/dto/google-user.dto';
 
 @Injectable()
 export class UserService {
@@ -112,30 +111,40 @@ export class UserService {
     await this.userRepo.delete(id);
   }
 
-  // For OAuth: find or create using google profile
-  async createFromGoogle(profile: GoogleUserDto): Promise<User> {
-    const existing = await this.findByEmail(profile.email);
-    if (existing) return existing;
-
-    const defaultRole = await this.roleRepo.findOne({
-      where: { name: 'Student' },
+  async updateRefreshToken(
+    userId: number,
+    refreshToken: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    await this.userRepo.update(userId, {
+      refreshToken,
+      refreshTokenExpiresAt: expiresAt,
     });
+  }
 
-    if (!defaultRole) {
-      throw new NotFoundException('No role available to assign');
-    }
+  async findByRefreshToken(refreshToken: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { refreshToken },
+      relations: ['role', 'campus'],
+    });
+  }
 
-    const ent = this.userRepo.create({
-      roleId: defaultRole.id,
-      role: defaultRole,
-      email: profile.email,
-      password: null,
-      givenName: profile.givenName ?? null,
-      surname: profile.surname ?? null,
-      avatar: profile.avatarUrl ?? null,
-      gender: 'UNSPECIFIED',
-    } as Partial<User>);
+  async clearRefreshToken(userId: number): Promise<void> {
+    await this.userRepo.update(userId, {
+      refreshToken: null,
+      refreshTokenExpiresAt: null,
+    });
+  }
 
-    return this.userRepo.save(ent);
+  async clearExpiredRefreshTokens(): Promise<void> {
+    await this.userRepo.update(
+      {
+        refreshTokenExpiresAt: new Date(),
+      },
+      {
+        refreshToken: null,
+        refreshTokenExpiresAt: null,
+      },
+    );
   }
 }

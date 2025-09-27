@@ -98,6 +98,8 @@ export class CourseService {
     if (dto.level !== undefined) ent.level = dto.level;
     if (dto.teacherId !== undefined) ent.teacherId = dto.teacherId;
     if (dto.slot !== undefined) ent.slot = dto.slot;
+    if (dto.status !== undefined) ent.status = dto.status;
+
 
     try {
       return await this.courseRepo.save(ent);

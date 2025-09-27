@@ -33,7 +33,7 @@ export class CampusController {
 
   /** List campuses (all roles) */
   @Get()
-  @Roles('admin','coordinator','teacher','student')
+  @Roles('admin','guardian','teacher','student')
   @ApiFindAllOperation(Campus)
   @ApiPaginationQuery()
   @ApiQuery({ name: 'search', required: false, description: 'Filter by code or name' })
@@ -51,7 +51,7 @@ export class CampusController {
 
   /** Get a campus by id (all roles) */
   @Get(':id')
-  @Roles('admin','coordinator','teacher','student')
+  @Roles('admin','guardian','teacher','student')
   @ApiFindOneOperation(Campus)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.svc.findOne(id);

@@ -15,5 +15,4 @@ export class CreateCourseDto {
   @ApiProperty({ required: false }) @IsOptional() @IsInt() teacherId?: number;
 
   @ApiProperty({ required: false }) @IsOptional() @IsInt() @Min(0) slot?: number;
-
 }

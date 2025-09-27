@@ -32,7 +32,7 @@ export class CourseController {
 
   // List: everyone authenticated
   @Get()
-  @Roles('admin','coordinator','teacher','student')
+  @Roles('admin','guardian','teacher','student')
   @ApiFindAllOperation(Course)
   @ApiPaginationQuery()
   @ApiQuery({ name: 'departmentId', required: false, type: Number })
@@ -59,7 +59,7 @@ export class CourseController {
 
   // Read: everyone authenticated
   @Get(':id')
-  @Roles('admin','coordinator','teacher','student')
+  @Roles('admin','guardian','teacher','student')
   @ApiFindOneOperation(Course)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.svc.findOne(id);
@@ -83,7 +83,7 @@ export class CourseController {
 
   // Bonus: “/departments/{id}/courses” per API doc
   @Get('/by-department/:departmentId')
-  @Roles('admin','coordinator','teacher','student')
+  @Roles('admin','guardian','teacher','student')
   @ApiFindAllOperation(Course, 'Get courses by department')
   findByDepartment(@Param('departmentId', ParseIntPipe) departmentId: number) {
     return this.svc.findByDepartment(departmentId);

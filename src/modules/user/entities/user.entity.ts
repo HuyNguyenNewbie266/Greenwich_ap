@@ -89,6 +89,21 @@ export class User {
   })
   gender: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
 
+  @Column({
+    name: 'refresh_token',
+    type: 'varchar',
+    length: 128,
+    nullable: true,
+  })
+  refreshToken?: string | null;
+
+  @Column({
+    name: 'refresh_token_expires_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  refreshTokenExpiresAt?: Date | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
