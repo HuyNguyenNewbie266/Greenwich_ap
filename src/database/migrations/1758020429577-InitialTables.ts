@@ -21,15 +21,12 @@ export class InitialTables1758020429577 implements MigrationInterface {
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "user_account" DROP CONSTRAINT "FK_d8caf78eed2d2792f98c3e3c879"`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "user_account" DROP CONSTRAINT "FK_c57754862d92d288007ce87b4af"`,
-    );
-    await queryRunner.query(`DROP TABLE "user_account"`);
-    await queryRunner.query(`DROP TABLE "campus"`);
-    await queryRunner.query(`DROP TABLE "role"`);
-  }
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE "user_account" DROP CONSTRAINT "FK_d8caf78eed2d2792f98c3e3c879"`);
+        await queryRunner.query(`ALTER TABLE "user_account" DROP CONSTRAINT "FK_c57754862d92d288007ce87b4af"`);
+        await queryRunner.query(`DROP TABLE "user_account"`);
+        await queryRunner.query(`DROP TABLE "campus"`);
+        await queryRunner.query(`DROP TABLE "role"`);
+    }
+
 }

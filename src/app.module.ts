@@ -7,6 +7,9 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { StudentModule } from './modules/student/student.module';
 
+import { CourseModule } from './modules/course/course.module';
+import { CampusModule } from './modules/campus/campus.module';
+import { DepartmentModule } from './modules/department/department.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +26,9 @@ import { StudentModule } from './modules/student/student.module';
     UserModule,
     AuthModule,
     StudentModule,
+    CourseModule,
+    CampusModule,
+    DepartmentModule,
   ],
   controllers: [],
   providers: [],
