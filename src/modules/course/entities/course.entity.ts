@@ -1,18 +1,19 @@
-import {
-  Entity, PrimaryGeneratedColumn, Column,
-  CreateDateColumn, UpdateDateColumn
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, RelationId,CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-
+import { Department } from '../../department/entities/department.entity';
 @Entity({ name: 'course' })
 export class Course {
   @ApiProperty()
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
-  @ApiProperty({ description: 'Owning department ID' })
-  @Column({ name: 'department_id', type: 'bigint' })
-  departmentId!: number;
+  @ManyToOne(() => Department, { nullable: false })
+  @JoinColumn({ name: 'department_id' })             
+  department: Department;
+
+  // Expose the FK value without mapping the column twice
+  @RelationId((c: Course) => c.department)
+  departmentId: number;
 
   @ApiProperty({ description: 'Unique course code' })
   @Column({ length: 20, unique: true })
