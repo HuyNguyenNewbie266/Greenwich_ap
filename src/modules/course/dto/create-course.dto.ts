@@ -8,11 +8,19 @@ export class CreateCourseDto {
 
   @ApiProperty() @IsString() @MaxLength(255) title!: string;
 
-  @ApiProperty({ required: false }) @IsOptional() @IsInt() @Min(0) credits?: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  credits?: number;
 
   @ApiProperty() @IsString() @MaxLength(20) level!: string;
 
   @ApiProperty({ required: false }) @IsOptional() @IsInt() teacherId?: number;
 
-  @ApiProperty({ required: false }) @IsOptional() @IsInt() @Min(0) slot?: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  slot?: number;
 }

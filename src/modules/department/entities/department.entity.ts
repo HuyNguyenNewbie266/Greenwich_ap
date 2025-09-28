@@ -1,9 +1,11 @@
 import {
-  Entity, PrimaryGeneratedColumn, Column,
-  CreateDateColumn, UpdateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-
 
 @Entity({ name: 'department' })
 export class Department {
@@ -11,12 +13,10 @@ export class Department {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
-
   @ApiProperty()
   @Column({ length: 20, unique: true })
   code!: string;
 
- 
   @ApiProperty()
   @Column({ length: 150 })
   name!: string;

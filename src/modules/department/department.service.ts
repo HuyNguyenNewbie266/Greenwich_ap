@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Department } from './entities/department.entity';
@@ -7,14 +11,17 @@ import { UpdateDepartmentDto } from './dto/update-department.dto';
 
 @Injectable()
 export class DepartmentService {
-  constructor(@InjectRepository(Department) private repo: Repository<Department>) {}
-
+  constructor(
+    @InjectRepository(Department) private repo: Repository<Department>,
+  ) {}
 
   async findAll(opts?: { page?: number; limit?: number; search?: string }) {
     const qb = this.repo.createQueryBuilder('d');
 
     if (opts?.search) {
-      qb.andWhere('(d.code ILIKE :q OR d.name ILIKE :q)', { q: `%${opts.search}%` });
+      qb.andWhere('(d.code ILIKE :q OR d.name ILIKE :q)', {
+        q: `%${opts.search}%`,
+      });
     }
 
     qb.orderBy('d.createdAt', 'DESC');
@@ -37,8 +44,13 @@ export class DepartmentService {
     try {
       const entity = this.repo.create(dto as Department);
       return await this.repo.save(entity);
-    } catch (e: any) {
-      if (e?.code === '23505') {
+    } catch (e: unknown) {
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        (e as { code: string }).code === '23505'
+      ) {
         throw new ConflictException('Department code already exists');
       }
       throw e;

@@ -4,7 +4,6 @@ import { Campus } from '../user/entities/campus.entity';
 import { CampusService } from './campus.service';
 import { CampusController } from './campus.controller';
 
-
 @Module({
   imports: [TypeOrmModule.forFeature([Campus])],
   controllers: [CampusController],

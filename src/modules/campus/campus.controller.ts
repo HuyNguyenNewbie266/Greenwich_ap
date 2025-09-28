@@ -1,10 +1,23 @@
 import {
-  Controller, Get, Post, Patch, Delete, Body, Param, Query,
-  ParseIntPipe, UseGuards,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiController, ApiCreateOperation, ApiFindAllOperation, ApiFindOneOperation,
-  ApiUpdateOperation, ApiDeleteOperation, ApiPaginationQuery,
+  ApiController,
+  ApiCreateOperation,
+  ApiFindAllOperation,
+  ApiFindOneOperation,
+  ApiUpdateOperation,
+  ApiDeleteOperation,
+  ApiPaginationQuery,
 } from '../../common/decorators/swagger.decorator';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CampusService } from './campus.service';
@@ -14,7 +27,6 @@ import { Campus } from '../user/entities/campus.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-
 
 @ApiController('Campuses')
 @Controller('campuses')
@@ -33,10 +45,14 @@ export class CampusController {
 
   /** List campuses (all roles) */
   @Get()
-  @Roles('admin','guardian','teacher','student')
+  @Roles('admin', 'guardian', 'teacher', 'student')
   @ApiFindAllOperation(Campus)
   @ApiPaginationQuery()
-  @ApiQuery({ name: 'search', required: false, description: 'Filter by code or name' })
+  @ApiQuery({
+    name: 'search',
+    required: false,
+    description: 'Filter by code or name',
+  })
   findAll(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -51,7 +67,7 @@ export class CampusController {
 
   /** Get a campus by id (all roles) */
   @Get(':id')
-  @Roles('admin','guardian','teacher','student')
+  @Roles('admin', 'guardian', 'teacher', 'student')
   @ApiFindOneOperation(Campus)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.svc.findOne(id);

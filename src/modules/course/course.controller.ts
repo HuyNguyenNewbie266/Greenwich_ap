@@ -1,10 +1,23 @@
 import {
-  Controller, Get, Post, Body, Patch, Param, Delete,
-  Query, ParseIntPipe, UseGuards
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiController, ApiCreateOperation, ApiFindAllOperation, ApiFindOneOperation,
-  ApiUpdateOperation, ApiDeleteOperation, ApiPaginationQuery
+  ApiController,
+  ApiCreateOperation,
+  ApiFindAllOperation,
+  ApiFindOneOperation,
+  ApiUpdateOperation,
+  ApiDeleteOperation,
+  ApiPaginationQuery,
 } from '../../common/decorators/swagger.decorator';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CourseService } from './course.service';
@@ -32,7 +45,7 @@ export class CourseController {
 
   // List: everyone authenticated
   @Get()
-  @Roles('admin','guardian','teacher','student')
+  @Roles('admin', 'guardian', 'teacher', 'student')
   @ApiFindAllOperation(Course)
   @ApiPaginationQuery()
   @ApiQuery({ name: 'departmentId', required: false, type: Number })
@@ -59,7 +72,7 @@ export class CourseController {
 
   // Read: everyone authenticated
   @Get(':id')
-  @Roles('admin','guardian','teacher','student')
+  @Roles('admin', 'guardian', 'teacher', 'student')
   @ApiFindOneOperation(Course)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.svc.findOne(id);
@@ -83,7 +96,7 @@ export class CourseController {
 
   // Bonus: “/departments/{id}/courses” per API doc
   @Get('/by-department/:departmentId')
-  @Roles('admin','guardian','teacher','student')
+  @Roles('admin', 'guardian', 'teacher', 'student')
   @ApiFindAllOperation(Course, 'Get courses by department')
   findByDepartment(@Param('departmentId', ParseIntPipe) departmentId: number) {
     return this.svc.findByDepartment(departmentId);

@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, RelationId,CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  RelationId,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Department } from '../../department/entities/department.entity';
 @Entity({ name: 'course' })
@@ -8,7 +17,7 @@ export class Course {
   id!: number;
 
   @ManyToOne(() => Department, { nullable: false })
-  @JoinColumn({ name: 'department_id' })             
+  @JoinColumn({ name: 'department_id' })
   department: Department;
 
   // Expose the FK value without mapping the column twice

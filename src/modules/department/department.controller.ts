@@ -1,10 +1,23 @@
 import {
-  Controller, Get, Post, Patch, Delete, Body, Param,
-  Query, ParseIntPipe, UseGuards,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import {
-  ApiController, ApiCreateOperation, ApiFindAllOperation, ApiFindOneOperation,
-  ApiUpdateOperation, ApiDeleteOperation, ApiPaginationQuery,
+  ApiController,
+  ApiCreateOperation,
+  ApiFindAllOperation,
+  ApiFindOneOperation,
+  ApiUpdateOperation,
+  ApiDeleteOperation,
+  ApiPaginationQuery,
 } from '../../common/decorators/swagger.decorator';
 import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { DepartmentService } from './department.service';
@@ -32,7 +45,7 @@ export class DepartmentController {
 
   /** List all departments (all roles). */
   @Get()
-  @Roles('admin','guardian','teacher','student')
+  @Roles('admin', 'guardian', 'teacher', 'student')
   @ApiFindAllOperation(Department)
   @ApiPaginationQuery()
   @ApiQuery({ name: 'search', required: false })
@@ -50,7 +63,7 @@ export class DepartmentController {
 
   /** Get a department by id (all roles). */
   @Get(':id')
-  @Roles('admin','guardian','teacher','student')
+  @Roles('admin', 'guardian', 'teacher', 'student')
   @ApiFindOneOperation(Department)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.svc.findOne(id);
@@ -60,7 +73,10 @@ export class DepartmentController {
   @Patch(':id')
   @Roles('admin')
   @ApiUpdateOperation(Department)
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateDepartmentDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateDepartmentDto,
+  ) {
     return this.svc.update(id, dto);
   }
 

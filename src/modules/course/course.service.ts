@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DeepPartial} from 'typeorm';
+import { Repository, DeepPartial } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -14,7 +14,8 @@ import { Department } from '../department/entities/department.entity';
 export class CourseService {
   constructor(
     @InjectRepository(Course) private readonly courseRepo: Repository<Course>,
-    @InjectRepository(Department) private readonly deptRepo: Repository<Department>,
+    @InjectRepository(Department)
+    private readonly deptRepo: Repository<Department>,
   ) {}
 
   async findAll(opts?: {
@@ -59,7 +60,9 @@ export class CourseService {
 
   async create(dto: CreateCourseDto) {
     // 1) make sure department exists
-    const department = await this.deptRepo.findOne({ where: { id: dto.departmentId } });
+    const department = await this.deptRepo.findOne({
+      where: { id: dto.departmentId },
+    });
     if (!department) throw new NotFoundException('Department not found');
 
     // 2) create a SINGLE entity object (no array [])
@@ -76,8 +79,15 @@ export class CourseService {
 
     try {
       return await this.courseRepo.save(ent);
-    } catch (e: any) {
-      if (e?.code === '23505') throw new ConflictException('Course code already exists');
+    } catch (e: unknown) {
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        (e as { code: string }).code === '23505'
+      ) {
+        throw new ConflictException('Course code already exists');
+      }
       throw e;
     }
   }
@@ -87,7 +97,9 @@ export class CourseService {
     if (!ent) throw new NotFoundException('Course not found');
 
     if (dto.departmentId !== undefined) {
-      const dept = await this.deptRepo.findOne({ where: { id: dto.departmentId } });
+      const dept = await this.deptRepo.findOne({
+        where: { id: dto.departmentId },
+      });
       if (!dept) throw new NotFoundException('Department not found');
       ent.department = dept;
     }
@@ -100,11 +112,17 @@ export class CourseService {
     if (dto.slot !== undefined) ent.slot = dto.slot;
     if (dto.status !== undefined) ent.status = dto.status;
 
-
     try {
       return await this.courseRepo.save(ent);
-    } catch (e: any) {
-      if (e?.code === '23505') throw new ConflictException('Course code already exists');
+    } catch (e: unknown) {
+      if (
+        typeof e === 'object' &&
+        e !== null &&
+        'code' in e &&
+        (e as { code: string }).code === '23505'
+      ) {
+        throw new ConflictException('Course code already exists');
+      }
       throw e;
     }
   }
@@ -116,7 +134,8 @@ export class CourseService {
   }
 
   async findByDepartment(departmentId: number) {
-    return this.courseRepo.find({ where: { department: { id: departmentId } } });
+    return this.courseRepo.find({
+      where: { department: { id: departmentId } },
+    });
   }
-
 }

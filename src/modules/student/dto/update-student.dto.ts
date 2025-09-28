@@ -1,7 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateStudentDto } from './create-student.dto';
 import { SwaggerProperty } from '../../../common/decorators/swagger.decorator';
-import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateStudentDto extends PartialType(CreateStudentDto) {
   @SwaggerProperty({

@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -8,7 +8,6 @@ import { Campus } from './entities/campus.entity';
 import { Student } from '../student/entities/student.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { GoogleUserDto } from '../auth/dto/google-user.dto';
 import { UserProfileDto } from './dto/user-profile.dto';
 
 @Injectable()
@@ -136,7 +135,7 @@ export class UserService {
     return this.userRepo.save(user);
   }
 
-  async updateProfile(userId: number, dto: UserProfileDto): Promise<any> {
+  async updateProfile(userId: number, dto: UserProfileDto): Promise<User> {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) {
       throw new Error('User not found');
