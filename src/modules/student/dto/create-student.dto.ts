@@ -41,6 +41,15 @@ export class CreateStudentDto {
   mentorId?: number;
 
   @SwaggerProperty({
+    description: 'Class ID',
+    required: false,
+    example: 10,
+  })
+  @IsOptional()
+  @IsNumber()
+  classId?: number;
+
+  @SwaggerProperty({
     description: 'Faculty name',
     example: 'Computing',
   })

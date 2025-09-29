@@ -9,6 +9,7 @@ import { Student } from './entities/student.entity';
 import { User } from '../user/entities/user.entity';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { Class } from '../class/entities/class.entity';
 
 @Injectable()
 export class StudentService {
@@ -18,6 +19,9 @@ export class StudentService {
 
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+
+    @InjectRepository(Class)
+    private readonly classRepo: Repository<Class>,
   ) {}
 
   // CREATE
@@ -47,6 +51,13 @@ export class StudentService {
     if (dto.mentorId) {
       mentor = await this.userRepo.findOne({ where: { id: dto.mentorId } });
       if (!mentor) throw new NotFoundException('Mentor not found');
+    }
+
+    if (dto.classId) {
+      const existingClass = await this.classRepo.findOne({
+        where: { id: dto.classId },
+      });
+      if (!existingClass) throw new NotFoundException('Class not found');
     }
 
     const student = this.studentRepo.create({
@@ -135,6 +146,13 @@ export class StudentService {
         throw new BadRequestException('Student code already exists');
       }
       student.studentCode = dto.studentCode;
+    }
+
+    if (dto.classId) {
+      const existingClass = await this.classRepo.findOne({
+        where: { id: dto.classId },
+      });
+      if (!existingClass) throw new NotFoundException('Class not found');
     }
 
     Object.assign(student, dto);

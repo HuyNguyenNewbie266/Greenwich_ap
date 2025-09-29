@@ -7,14 +7,19 @@ import {
   RelationId,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Department } from '../../department/entities/department.entity';
+import { ClassCourse } from '../../class/entities/class-course.entity';
 @Entity({ name: 'course' })
 export class Course {
   @ApiProperty()
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
+
+  @OneToMany(() => ClassCourse, (classCourse) => classCourse.course)
+  classCourses: ClassCourse[];
 
   @ManyToOne(() => Department, { nullable: false })
   @JoinColumn({ name: 'department_id' })
