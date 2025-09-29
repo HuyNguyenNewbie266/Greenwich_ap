@@ -53,9 +53,6 @@ export class ClassService {
 
   async addCourse(id: number, addCourseDto: AddCourseDto) {
     const classEntity = await this.findOne(id);
-    if (!classEntity) {
-      throw new NotFoundException(`Class with ID ${id} not found`);
-    }
 
     const course = await this.courseRepository.findOneBy({
       id: addCourseDto.courseId,
