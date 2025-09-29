@@ -80,7 +80,9 @@ export class AuthController {
       secure: true,
     });
     // Redirect back to frontend
-    // res.redirect('http://localhost:5173/');
+    // return res.redirect('http://localhost:5173/');
+
+    return res.json(tokens);
   }
 
   @Get('me')
