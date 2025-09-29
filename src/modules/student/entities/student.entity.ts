@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../user/entities/user.entity';
+import { Class } from '../../class/entities/class.entity';
 
 @Entity({ name: 'student' })
 export class Student {
@@ -23,6 +24,14 @@ export class Student {
   @ManyToOne(() => User, { eager: true })
   @JoinColumn({ name: 'user_id' })
   user!: User;
+
+  @ManyToOne(() => Class, (c) => c.students, { nullable: true })
+  @JoinColumn({ name: 'class_id' })
+  class?: Class;
+
+  @ApiProperty({ description: 'Class (Class reference)', required: false })
+  @Column({ name: 'class_id', type: 'bigint', nullable: true })
+  classId?: number | null;
 
   @ApiProperty()
   @Column({ name: 'student_code', type: 'varchar', length: 30, unique: true })

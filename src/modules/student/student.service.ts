@@ -49,6 +49,13 @@ export class StudentService {
       if (!mentor) throw new NotFoundException('Mentor not found');
     }
 
+    if (dto.classId) {
+      const existingClass = await this.studentRepo.findOne({
+        where: { id: dto.classId },
+      });
+      if (!existingClass) throw new NotFoundException('Class not found');
+    }
+
     const student = this.studentRepo.create({
       ...dto,
       studentCode: code,
