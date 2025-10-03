@@ -65,6 +65,18 @@ export class User {
   @Column({ name: 'given_name', type: 'varchar', length: 80, nullable: true })
   givenName?: string | null;
 
+  @ApiProperty({ enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'] })
+  @Column({
+    type: 'enum',
+    enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'],
+    default: 'UNSPECIFIED',
+  })
+  gender!: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
+
+  @ApiProperty({ required: false })
+  @Column({ type: 'date', nullable: true })
+  dateOfBirth?: Date | null;
+
   @ApiProperty({ required: false })
   @Column({ type: 'varchar', length: 300, nullable: true })
   avatar?: string | null;
@@ -81,13 +93,20 @@ export class User {
   })
   status!: 'ACTIVE' | 'INACTIVE';
 
-  @ApiProperty({ enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'] })
   @Column({
-    type: 'enum',
-    enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'],
-    default: 'UNSPECIFIED',
+    name: 'refresh_token',
+    type: 'varchar',
+    length: 128,
+    nullable: true,
   })
-  gender: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
+  refreshToken?: string | null;
+
+  @Column({
+    name: 'refresh_token_expires_at',
+    type: 'timestamp',
+    nullable: true,
+  })
+  refreshTokenExpiresAt?: Date | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;

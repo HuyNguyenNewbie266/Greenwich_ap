@@ -5,7 +5,11 @@ import databaseConfig from './config/database.config';
 import jwtConfig from './config/jwt.config';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
-
+import { StudentModule } from './modules/student/student.module';
+import { CourseModule } from './modules/course/course.module';
+import { CampusModule } from './modules/campus/campus.module';
+import { DepartmentModule } from './modules/department/department.module';
+import { ClassModule } from './modules/class/class.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -21,6 +25,11 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    StudentModule,
+    CourseModule,
+    CampusModule,
+    DepartmentModule,
+    ClassModule,
   ],
   controllers: [],
   providers: [],

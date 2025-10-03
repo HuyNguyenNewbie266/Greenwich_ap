@@ -5,9 +5,10 @@ import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Campus } from './entities/campus.entity';
+import { Student } from '../student/entities/student.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { GoogleUserDto } from '../auth/dto/google-user.dto';
+import { UserProfileDto } from './dto/user-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,8 @@ export class UserService {
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
     @InjectRepository(Campus) private readonly campusRepo: Repository<Campus>,
+    @InjectRepository(Student)
+    private readonly studentRepo: Repository<Student>,
   ) {}
 
   async findAll(opts?: { page?: number; limit?: number; search?: string }) {
@@ -75,7 +78,24 @@ export class UserService {
       gender: dto.gender ?? 'UNSPECIFIED',
     } as Partial<User>);
 
-    return this.userRepo.save(ent);
+    const savedUser = await this.userRepo.save(ent);
+
+    if (role.name === 'Student') {
+      let mentor = null;
+      if (dto.mentorId) {
+        mentor = await this.userRepo.findOne({ where: { id: dto.mentorId } });
+        if (!mentor) throw new NotFoundException('Mentor not found');
+      }
+
+      const student = this.studentRepo.create({
+        user: savedUser,
+        studentCode: dto.studentCode ?? `GCS23000${savedUser.id}`,
+        mentor,
+      });
+      await this.studentRepo.save(student);
+    }
+
+    return savedUser;
   }
 
   async update(id: number, dto: UpdateUserDto): Promise<User> {
@@ -104,38 +124,96 @@ export class UserService {
     if (dto.givenName !== undefined) user.givenName = dto.givenName ?? null;
     if (dto.surname !== undefined) user.surname = dto.surname ?? null;
     if (dto.gender !== undefined) user.gender = dto.gender;
+    if (dto.phone !== undefined) user.phone = dto.phone ?? null;
+    if (dto.phoneAlt !== undefined) user.phoneAlt = dto.phoneAlt ?? null;
+    if (dto.address !== undefined) user.address = dto.address ?? null;
+    if (dto.avatar !== undefined) user.avatar = dto.avatar ?? null;
+    if (dto.note !== undefined) user.note = dto.note ?? null;
+    if (dto.dateOfBirth !== undefined) {
+      user.dateOfBirth = dto.dateOfBirth ? new Date(dto.dateOfBirth) : null;
+    }
+    return this.userRepo.save(user);
+  }
+
+  async updateProfile(userId: number, dto: UserProfileDto): Promise<User> {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (dto.phone !== undefined) {
+      user.phone = dto.phone;
+    }
+    if (dto.avatar !== undefined) {
+      user.avatar = dto.avatar;
+    }
 
     return this.userRepo.save(user);
   }
 
-  async remove(id: number): Promise<void> {
-    await this.userRepo.delete(id);
+  // ACTIVATE (set status = ACTIVE)
+  async activate(id: number): Promise<User> {
+    const user = await this.userRepo.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    user.status = 'ACTIVE';
+    return await this.userRepo.save(user);
   }
 
-  // For OAuth: find or create using google profile
-  async createFromGoogle(profile: GoogleUserDto): Promise<User> {
-    const existing = await this.findByEmail(profile.email);
-    if (existing) return existing;
-
-    const defaultRole = await this.roleRepo.findOne({
-      where: { name: 'Student' },
-    });
-
-    if (!defaultRole) {
-      throw new NotFoundException('No role available to assign');
+  // DELETE (soft: set status = INACTIVE)
+  async deactivate(id: number): Promise<User> {
+    const user = await this.userRepo.findOneBy({ id });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
+    user.status = 'INACTIVE';
+    return await this.userRepo.save(user);
+  }
 
-    const ent = this.userRepo.create({
-      roleId: defaultRole.id,
-      role: defaultRole,
-      email: profile.email,
-      password: null,
-      givenName: profile.givenName ?? null,
-      surname: profile.surname ?? null,
-      avatar: profile.avatarUrl ?? null,
-      gender: 'UNSPECIFIED',
-    } as Partial<User>);
+  // DELETE (remove user)
+  async remove(id: number): Promise<{ success: boolean }> {
+    const result = await this.userRepo.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('User not found');
+    }
+    return { success: true };
+  }
 
-    return this.userRepo.save(ent);
+  async updateRefreshToken(
+    userId: number,
+    refreshToken: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    await this.userRepo.update(userId, {
+      refreshToken,
+      refreshTokenExpiresAt: expiresAt,
+    });
+  }
+
+  async findByRefreshToken(refreshToken: string): Promise<User | null> {
+    return this.userRepo.findOne({
+      where: { refreshToken },
+      relations: ['role', 'campus'],
+    });
+  }
+
+  async clearRefreshToken(userId: number): Promise<void> {
+    await this.userRepo.update(userId, {
+      refreshToken: null,
+      refreshTokenExpiresAt: null,
+    });
+  }
+
+  async clearExpiredRefreshTokens(): Promise<void> {
+    await this.userRepo.update(
+      {
+        refreshTokenExpiresAt: new Date(),
+      },
+      {
+        refreshToken: null,
+        refreshTokenExpiresAt: null,
+      },
+    );
   }
 }
