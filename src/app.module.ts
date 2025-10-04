@@ -10,6 +10,8 @@ import { CourseModule } from './modules/course/course.module';
 import { CampusModule } from './modules/campus/campus.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { ClassModule } from './modules/class/class.module';
+import { ThreadModule } from './modules/thread/thread.module';
+import { CommentModule } from './modules/comment/comment.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -30,6 +32,8 @@ import { ClassModule } from './modules/class/class.module';
     CampusModule,
     DepartmentModule,
     ClassModule,
+    ThreadModule,
+    CommentModule,
   ],
   controllers: [],
   providers: [],
