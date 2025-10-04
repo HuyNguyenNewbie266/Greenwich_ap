@@ -113,10 +113,7 @@ export class ClassController {
 
   @ApiOperation({ summary: 'Get a specific class session' })
   @Get(':id/sessions/:sessionId')
-  findSession(
-    @Param('id') id: string,
-    @Param('sessionId') sessionId: string,
-  ) {
+  findSession(@Param('id') id: string, @Param('sessionId') sessionId: string) {
     return this.classService.findSession(+id, +sessionId);
   }
 

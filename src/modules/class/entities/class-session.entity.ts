@@ -46,7 +46,9 @@ export class ClassSession {
   @Column({ name: 'date_on', type: 'date' })
   dateOn!: Date;
 
-  @ApiProperty({ description: 'Reference to the room where the session occurs' })
+  @ApiProperty({
+    description: 'Reference to the room where the session occurs',
+  })
   @Column({ name: 'room_id', type: 'bigint' })
   roomId!: number;
 
