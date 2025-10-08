@@ -8,6 +8,7 @@ import { ClassCourse } from './entities/class-course.entity';
 import { ClassSession } from './entities/class-session.entity';
 import { Course } from '../course/entities/course.entity';
 import { Student } from '../student/entities/student.entity';
+import { Room } from '../room/entities/room.entity';
 
 describe('ClassController', () => {
   let controller: ClassController;
@@ -22,6 +23,7 @@ describe('ClassController', () => {
         { provide: getRepositoryToken(ClassSession), useClass: Repository },
         { provide: getRepositoryToken(Course), useClass: Repository },
         { provide: getRepositoryToken(Student), useClass: Repository },
+        { provide: getRepositoryToken(Room), useClass: Repository },
       ],
     }).compile();
 

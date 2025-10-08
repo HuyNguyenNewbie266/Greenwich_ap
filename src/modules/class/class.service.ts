@@ -11,6 +11,7 @@ import { Student } from '../student/entities/student.entity';
 import { ClassSession } from './entities/class-session.entity';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { UpdateClassSessionDto } from './dto/update-class-session.dto';
+import { Room } from '../room/entities/room.entity';
 
 @Injectable()
 export class ClassService {
@@ -25,6 +26,8 @@ export class ClassService {
     private readonly courseRepository: Repository<Course>,
     @InjectRepository(Student)
     private readonly studentRepository: Repository<Student>,
+    @InjectRepository(Room)
+    private readonly roomRepository: Repository<Room>,
   ) {}
 
   create(createClassDto: CreateClassDto) {
@@ -57,13 +60,24 @@ export class ClassService {
       );
     }
 
+    const room = await this.roomRepository.findOne({
+      where: { id: createSessionDto.roomId },
+    });
+
+    if (!room) {
+      throw new NotFoundException(
+        `Room with ID ${createSessionDto.roomId} not found`,
+      );
+    }
+
     const newSession = this.classSessionRepository.create({
       class: classEntity,
       course,
       courseId: course.id,
       classId: classEntity.id,
       dateOn: new Date(createSessionDto.dateOn),
-      roomId: createSessionDto.roomId,
+      room,
+      roomId: room.id,
       teacherId: createSessionDto.teacherId,
       status: createSessionDto.status ?? 'SCHEDULED',
     });
@@ -74,7 +88,7 @@ export class ClassService {
   findSessions(classId: number) {
     return this.classSessionRepository.find({
       where: { class: { id: classId } },
-      relations: ['course'],
+      relations: ['course', 'room'],
       order: { dateOn: 'ASC' },
     });
   }
@@ -82,7 +96,7 @@ export class ClassService {
   async findSession(classId: number, sessionId: number) {
     const session = await this.classSessionRepository.findOne({
       where: { id: sessionId, class: { id: classId } },
-      relations: ['course', 'class'],
+      relations: ['course', 'class', 'room'],
     });
 
     if (!session) {
@@ -128,7 +142,17 @@ export class ClassService {
       session.dateOn = new Date(updateDto.dateOn);
     }
     if (updateDto.roomId !== undefined) {
-      session.roomId = updateDto.roomId;
+      const room = await this.roomRepository.findOne({
+        where: { id: updateDto.roomId },
+      });
+      if (!room) {
+        throw new NotFoundException(
+          `Room with ID ${updateDto.roomId} not found`,
+        );
+      }
+
+      session.room = room;
+      session.roomId = room.id;
     }
     if (updateDto.teacherId !== undefined) {
       session.teacherId = updateDto.teacherId;
