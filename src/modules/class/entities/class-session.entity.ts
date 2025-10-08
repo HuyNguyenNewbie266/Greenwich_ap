@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  RelationId,
 } from 'typeorm';
 import { Class } from './class.entity';
 import { Course } from '../../course/entities/course.entity';
@@ -24,17 +25,13 @@ export class ClassSession {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
-  @ApiProperty({ description: 'Reference to the class' })
-  @Column({ name: 'class_id', type: 'bigint' })
-  classId!: number;
-
   @ManyToOne(() => Class, (cls) => cls.sessions, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'class_id' })
   class!: Class;
 
-  @ApiProperty({ description: 'Reference to the course' })
-  @Column({ name: 'course_id', type: 'bigint' })
-  courseId!: number;
+  @ApiProperty({ description: 'Reference to the class' })
+  @RelationId((session: ClassSession) => session.class)
+  classId!: number;
 
   @ManyToOne(() => Course, (course) => course.classSessions, {
     onDelete: 'CASCADE',
@@ -42,9 +39,17 @@ export class ClassSession {
   @JoinColumn({ name: 'course_id' })
   course!: Course;
 
-  @ApiProperty({ type: String, format: 'date' })
+  @ApiProperty({ description: 'Reference to the course' })
+  @RelationId((session: ClassSession) => session.course)
+  courseId!: number;
+
+  @ApiProperty({
+    type: String,
+    format: 'date',
+    example: '2024-06-01',
+  })
   @Column({ name: 'date_on', type: 'date' })
-  dateOn!: Date;
+  dateOn!: string;
 
   @ApiProperty({ description: 'Reference to the room where the session occurs' })
   @Column({ name: 'room_id', type: 'bigint' })
