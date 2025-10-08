@@ -135,11 +135,10 @@ export class ClassService {
       }
 
       session.course = course;
-      session.courseId = course.id;
     }
 
     if (updateDto.dateOn !== undefined) {
-      session.dateOn = new Date(updateDto.dateOn);
+      session.dateOn = updateDto.dateOn;
     }
     if (updateDto.roomId !== undefined) {
       const room = await this.roomRepository.findOne({
