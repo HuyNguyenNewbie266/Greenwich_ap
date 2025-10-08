@@ -1,0 +1,26 @@
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { RoomService } from './room.service';
+import { Room } from './entities/room.entity';
+import { Campus } from '../user/entities/campus.entity';
+
+describe('RoomService', () => {
+  let service: RoomService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        RoomService,
+        { provide: getRepositoryToken(Room), useClass: Repository },
+        { provide: getRepositoryToken(Campus), useClass: Repository },
+      ],
+    }).compile();
+
+    service = module.get<RoomService>(RoomService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+});
