@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -64,9 +60,7 @@ export class ClassService {
     const newSession = this.classSessionRepository.create({
       class: classEntity,
       course,
-      courseId: course.id,
-      classId: classEntity.id,
-      dateOn: new Date(createSessionDto.dateOn),
+      dateOn: createSessionDto.dateOn,
       roomId: createSessionDto.roomId,
       teacherId: createSessionDto.teacherId,
       status: createSessionDto.status ?? 'SCHEDULED',
@@ -125,11 +119,10 @@ export class ClassService {
       }
 
       session.course = course;
-      session.courseId = course.id;
     }
 
     if (updateDto.dateOn !== undefined) {
-      session.dateOn = new Date(updateDto.dateOn);
+      session.dateOn = updateDto.dateOn;
     }
     if (updateDto.roomId !== undefined) {
       session.roomId = updateDto.roomId;
