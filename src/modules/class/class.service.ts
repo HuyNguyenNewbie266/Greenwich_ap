@@ -75,7 +75,7 @@ export class ClassService {
       course,
       courseId: course.id,
       classId: classEntity.id,
-      dateOn: new Date(createSessionDto.dateOn),
+      dateOn: createSessionDto.dateOn,
       room,
       roomId: room.id,
       teacherId: createSessionDto.teacherId,
