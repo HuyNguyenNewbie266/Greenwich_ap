@@ -35,13 +35,13 @@ import {
 
 @ApiTags('Time Slots')
 @ApiBearerAuth('access-token')
-@Controller('time-slot')
+@Controller('time-slots')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('ADMIN', 'STAFF')
 export class TimeSlotController {
   constructor(private readonly timeSlotService: TimeSlotService) {}
 
   @Post()
-  @Roles('ADMIN')
   @ApiCreateOperation(TimeSlot)
   create(@Body() createTimeSlotDto: CreateTimeSlotDto) {
     return this.timeSlotService.create(createTimeSlotDto);
@@ -60,7 +60,6 @@ export class TimeSlotController {
   }
 
   @Patch(':id')
-  @Roles('ADMIN')
   @ApiUpdateOperation(TimeSlot)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -70,7 +69,6 @@ export class TimeSlotController {
   }
 
   @Delete(':id')
-  @Roles('ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiDeleteOperation(TimeSlot)
   remove(@Param('id', ParseIntPipe) id: number) {
@@ -78,7 +76,6 @@ export class TimeSlotController {
   }
 
   @Post('assign-slot')
-  @Roles('ADMIN', 'STAFF')
   @ApiOperation({ summary: 'Assign a time slot to a class session' })
   @ApiResponse({
     status: 201,
@@ -88,7 +85,7 @@ export class TimeSlotController {
     return this.timeSlotService.assignSlotToSession(assignTimeSlotDto);
   }
 
-  @Get('session/:sessionId')
+  @Get('sessions/:sessionId')
   @ApiOperation({ summary: 'Get all time slots for a class session' })
   @ApiResponse({
     status: 200,
@@ -98,8 +95,7 @@ export class TimeSlotController {
     return this.timeSlotService.getSessionSlots(sessionId);
   }
 
-  @Delete('session/:sessionId/slot/:slotId')
-  @Roles('ADMIN', 'STAFF')
+  @Delete('sessions/:sessionId/slot/:slotId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Remove a time slot from a class session' })
   @ApiResponse({
