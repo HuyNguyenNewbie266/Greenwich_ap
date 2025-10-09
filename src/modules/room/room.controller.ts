@@ -79,10 +79,7 @@ export class RoomController {
   @Patch(':id')
   @Roles('ADMIN', 'STAFF')
   @ApiUpdateOperation(Room)
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateRoomDto,
-  ) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateRoomDto) {
     return this.roomService.update(id, dto);
   }
 

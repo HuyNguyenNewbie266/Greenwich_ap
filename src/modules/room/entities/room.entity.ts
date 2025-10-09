@@ -36,7 +36,10 @@ export class Room {
   @Column({ type: 'int' })
   capacity!: number;
 
-  @ApiProperty({ description: 'Optional notes about the room', required: false })
+  @ApiProperty({
+    description: 'Optional notes about the room',
+    required: false,
+  })
   @Column({ type: 'varchar', length: 255, nullable: true })
   note?: string | null;
 

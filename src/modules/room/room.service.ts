@@ -59,7 +59,9 @@ export class RoomService {
   }
 
   async create(dto: CreateRoomDto) {
-    const campus = await this.campusRepo.findOne({ where: { id: dto.campusId } });
+    const campus = await this.campusRepo.findOne({
+      where: { id: dto.campusId },
+    });
     if (!campus) {
       throw new NotFoundException('Campus not found');
     }
@@ -92,7 +94,9 @@ export class RoomService {
     const room = await this.findOne(id);
 
     if (dto.campusId !== undefined) {
-      const campus = await this.campusRepo.findOne({ where: { id: dto.campusId } });
+      const campus = await this.campusRepo.findOne({
+        where: { id: dto.campusId },
+      });
       if (!campus) {
         throw new NotFoundException('Campus not found');
       }
