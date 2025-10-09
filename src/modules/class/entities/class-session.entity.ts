@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Class } from './class.entity';
 import { Course } from '../../course/entities/course.entity';
+import { Room } from '../../room/entities/room.entity';
 
 export const CLASS_SESSION_STATUS = [
   'SCHEDULED',
@@ -54,6 +55,10 @@ export class ClassSession {
   @ApiProperty({ description: 'Reference to the room where the session occurs' })
   @Column({ name: 'room_id', type: 'bigint' })
   roomId!: number;
+
+  @ManyToOne(() => Room, (room) => room.sessions, { nullable: false })
+  @JoinColumn({ name: 'room_id' })
+  room!: Room;
 
   @ApiProperty({ description: 'Reference to the teacher in charge' })
   @Column({ name: 'teacher_id', type: 'bigint' })
