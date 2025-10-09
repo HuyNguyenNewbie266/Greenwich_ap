@@ -11,6 +11,7 @@ import { CampusModule } from './modules/campus/campus.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { ClassModule } from './modules/class/class.module';
 import { RoomModule } from './modules/room/room.module';
+import { TimeSlotModule } from './modules/time-slot/time-slot.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,6 +33,7 @@ import { RoomModule } from './modules/room/room.module';
     DepartmentModule,
     ClassModule,
     RoomModule,
+    TimeSlotModule,
   ],
   controllers: [],
   providers: [],
