@@ -26,7 +26,7 @@
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js** (>= 18.0.0)
+- **Node.js** (>= 20.0.0)
 - **Yarn** (>= 1.22.0)
 - **Docker & Docker Compose**
 

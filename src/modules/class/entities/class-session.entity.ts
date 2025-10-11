@@ -3,6 +3,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   RelationId,
@@ -10,6 +12,7 @@ import {
 import { Class } from './class.entity';
 import { Course } from '../../course/entities/course.entity';
 import { Room } from '../../room/entities/room.entity';
+import { TimeSlot } from '../../time-slot/entities/time-slot.entity';
 
 export const CLASS_SESSION_STATUS = [
   'SCHEDULED',
@@ -76,4 +79,12 @@ export class ClassSession {
     default: 'SCHEDULED',
   })
   status!: ClassSessionStatus;
+
+  @ManyToMany(() => TimeSlot)
+  @JoinTable({
+    name: 'class_session_slot',
+    joinColumn: { name: 'session_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'slot_id', referencedColumnName: 'id' },
+  })
+  timeSlots?: TimeSlot[];
 }
