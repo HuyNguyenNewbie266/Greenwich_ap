@@ -17,7 +17,8 @@ import { TimeSlotModule } from './modules/time-slot/time-slot.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, jwtConfig],
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
