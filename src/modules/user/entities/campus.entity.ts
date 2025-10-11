@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { User } from './user.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Room } from '../../room/entities/room.entity';
 
 @Entity({ name: 'campus' })
 export class Campus {
@@ -18,4 +19,7 @@ export class Campus {
 
   @OneToMany(() => User, (u) => u.campus)
   users?: User[];
+
+  @OneToMany(() => Room, (room) => room.campus)
+  rooms?: Room[];
 }

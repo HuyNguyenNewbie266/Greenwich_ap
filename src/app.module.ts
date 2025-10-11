@@ -12,6 +12,7 @@ import { DepartmentModule } from './modules/department/department.module';
 import { ClassModule } from './modules/class/class.module';
 import { ThreadModule } from './modules/thread/thread.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { RoomModule } from './modules/room/room.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,6 +35,7 @@ import { CommentModule } from './modules/comment/comment.module';
     ClassModule,
     ThreadModule,
     CommentModule,
+    RoomModule,
   ],
   controllers: [],
   providers: [],
