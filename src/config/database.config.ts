@@ -1,37 +1,29 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
-export default registerAs('database', () => {
-  const databaseUrl = process.env.DB_URL;
+export default registerAs('database', (): TypeOrmModuleOptions => {
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  if (databaseUrl) {
-    return {
-      type: 'postgres',
-      url: databaseUrl,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      synchronize: false,
-      ssl: { rejectUnauthorized: false },
-      logging: false,
-      migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
-      migrationsTableName: 'migrations',
-    } as TypeOrmModuleOptions;
-  }
+  const productionConfig = {
+    url: process.env.DB_URL,
+    ssl: { rejectUnauthorized: false },
+  };
 
-  return {
-    type: 'postgres',
+  const developmentConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432', 10),
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
+  };
+
+  return {
+    type: 'postgres',
+    ...(isProduction ? productionConfig : developmentConfig),
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: process.env.NODE_ENV === 'development',
-    ssl:
-      process.env.NODE_ENV === 'production'
-        ? { rejectUnauthorized: false }
-        : false,
-    logging: process.env.NODE_ENV === 'development',
     migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
     migrationsTableName: 'migrations',
-  } as TypeOrmModuleOptions;
+    synchronize: !isProduction,
+    logging: !isProduction,
+  };
 });
