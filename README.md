@@ -70,7 +70,7 @@ For the best development experience, install these VSCode extensions:
 
    ```bash
    # Start PostgreSQL, Redis, and pgAdmin for development
-   docker compose -f docker-compose.dev.yml up -d
+   docker compose -f docker-compose.yml up -d
    ```
 
 6. **Set up the database**
@@ -78,13 +78,13 @@ For the best development experience, install these VSCode extensions:
    2. Login with credentials:
       - Email: `admin@greenwich.edu`
       - Password: `secret`
-   3. Right-click on "Servers" → "Create" → "Server"
+   3. Right-click on "Servers" → "Register" → "Server"
    4. In "General" tab:
       - Name: `Greenwich Local`
    5. In "Connection" tab:
       - Host: `postgres` (if using Docker) or `localhost`
       - Port: `5432`
-      - Username: `root`
+      - Username: `root` (if using Docker) or `postgres`
       - Password: `secret`
    6. Click "Save"
    7. Right-click on the server → "Create" → "Database"

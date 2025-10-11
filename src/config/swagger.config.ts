@@ -71,7 +71,10 @@ export const setupSwagger = (
   } else {
     // Default servers based on environment
     if (process.env.NODE_ENV === 'production') {
-      config.addServer('https://api.your-domain.com', 'Production server');
+      config.addServer(
+        'https://greenwich-ap-backend.onrender.com',
+        'Production server',
+      );
     } else {
       const port = process.env.PORT || 3000;
       config.addServer(`http://localhost:${port}`, 'Development server');

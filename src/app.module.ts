@@ -12,6 +12,7 @@ import { DepartmentModule } from './modules/department/department.module';
 import { ClassModule } from './modules/class/class.module';
 import { RoomModule } from './modules/room/room.module';
 import { TimeSlotModule } from './modules/time-slot/time-slot.module';
+import { HealthController } from './health/health.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -36,7 +37,7 @@ import { TimeSlotModule } from './modules/time-slot/time-slot.module';
     RoomModule,
     TimeSlotModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}
