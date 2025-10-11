@@ -5,20 +5,6 @@ export class CreateTimeSlotDto {
   @SwaggerProperty({
     description: 'The name of the time slot',
     example: 'Slot 1',
-import { SwaggerProperty } from 'src/common/decorators/swagger.decorator';
-import { IsString, IsNotEmpty, Matches } from 'class-validator';
-
-export class CreateTimeSlotDto {
-  @SwaggerProperty({
-    description: 'The name of the time slot',
-    example: 'Slot 1',
-import { SwaggerProperty } from 'src/common/decorators/swagger.decorator';
-import { IsString, IsNotEmpty, Matches } from 'class-validator';
-
-export class CreateTimeSlotDto {
-  @SwaggerProperty({
-    description: 'The name of the time slot',
-    example: 'Slot 1',
   })
   @IsString()
   @IsNotEmpty()
