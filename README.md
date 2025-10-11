@@ -63,7 +63,6 @@ For the best development experience, install these VSCode extensions:
    ```bash
    # Copy environment template files
    cp .env.example .env
-   cp .env.example .env.development
    ```
 
 5. **Start Docker services**
