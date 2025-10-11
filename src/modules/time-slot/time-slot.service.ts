@@ -17,7 +17,8 @@ export class TimeSlotService {
   ) {}
 
   create(createTimeSlotDto: CreateTimeSlotDto) {
-    return this.timeSlotRepository.save(createTimeSlotDto);
+    const timeSlot = this.timeSlotRepository.create(createTimeSlotDto);
+    return this.timeSlotRepository.save(timeSlot);
   }
 
   findAll() {
