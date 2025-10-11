@@ -20,6 +20,11 @@ COPY . .
 # Build the NestJS application
 RUN yarn build
 
+# --- DEBUGGING STEP ---
+# List the contents of the /app directory to verify the build output.
+# You should see a 'dist' folder with your compiled JavaScript files here.
+RUN ls -laR
+
 # --- Production Stage ---
 # This stage creates the final, slim image with only what's needed to run the app.
 FROM node:20-alpine
@@ -35,18 +40,18 @@ RUN yarn install --frozen-lockfile --production
 # Copy the built application from the builder stage
 COPY --from=builder /app/dist ./dist
 
-# Create a dedicated, non-root user for better security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001
+# Create a dedicated, non-root user and group for better security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 # Change ownership of the application directory to the new user
-RUN chown -R nestjs:nodejs /app
+RUN chown -R appuser:appgroup /app
 
 # Switch to the non-root user
-USER nestjs
+USER appuser
 
 # Expose the port the application will run on
 EXPOSE 3000
 
-# The command to start the application
-CMD ["node", "dist/main"]
+# The command to start the application, with an explicit file extension
+CMD ["node", "dist/main.js"]
+
