@@ -23,7 +23,7 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
     migrationsTableName: 'migrations',
-    synchronize: !isProduction,
+    synchronize: false,
     logging: !isProduction,
   };
 });
