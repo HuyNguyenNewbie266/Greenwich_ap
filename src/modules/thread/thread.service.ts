@@ -15,8 +15,8 @@ import { plainToInstance } from 'class-transformer';
 @Injectable()
 export class ThreadService {
   constructor(
-    @InjectRepository(Thread) private readonly threadRepo: Repository<Thread>,
-    @InjectRepository(Comment)
+    @InjectRepository(Thread)
+    private readonly threadRepo: Repository<Thread>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
   ) {}

@@ -1,21 +1,31 @@
 import {
   IsString,
-  IsOptional,
+  MinLength,
   IsArray,
-  ArrayUnique,
   IsInt,
+  IsOptional,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { SwaggerProperty } from 'src/common/decorators/swagger.decorator';
 
 export class CreateThreadDto {
-  @ApiProperty()
+  @SwaggerProperty({
+    description: 'Title of the thread',
+    example: 'Best practices for REST API design',
+    required: true,
+  })
   @IsString()
+  @MinLength(5)
   title: string;
 
-  @ApiProperty()
+  @SwaggerProperty({
+    description: 'Array of user IDs to tag in the thread',
+    example: [2, 5],
+    required: false,
+    isArray: true,
+    type: Number,
+  })
   @IsOptional()
   @IsArray()
-  @ArrayUnique()
   @IsInt({ each: true })
   taggedUserIds?: number[];
 }

@@ -3,36 +3,51 @@ import {
   Post,
   Body,
   Param,
-  Req,
-  UseGuards,
   Get,
+  UseGuards,
+  ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { ThreadService } from './thread.service';
 import { CreateThreadDto } from './dto/create-thread.dto';
+import { ThreadResponseDto } from './dto/thread-response.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthGuard } from '@nestjs/passport';
-import type { AuthenticatedRequest } from 'src/common/types/authenticated-request.interface';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiController,
+  ApiCreateOperation,
+  ApiFindAllOperation,
+  ApiFindOneOperation,
+} from '../../common/decorators/swagger.decorator';
+import type { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 
-@Controller('thread')
+@Controller('threads')
+@ApiController('Threads', { requireAuth: true })
 @UseGuards(AuthGuard('jwt'))
-@ApiBearerAuth('access-token')
 export class ThreadController {
   constructor(private readonly threadService: ThreadService) {}
 
   @Post()
   @UseGuards(RolesGuard)
-  async create(@Req() req: AuthenticatedRequest, @Body() dto: CreateThreadDto) {
+  @ApiCreateOperation(ThreadResponseDto, 'Create a new thread')
+  async create(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: CreateThreadDto,
+  ): Promise<ThreadResponseDto> {
     return this.threadService.createThread(req.user.id, dto);
   }
 
   @Get()
-  async list() {
+  @ApiFindAllOperation(ThreadResponseDto, 'Retrieve all threads')
+  async findAll(): Promise<ThreadResponseDto[]> {
     return this.threadService.findAll();
   }
 
   @Get(':id')
-  async get(@Param('id') id: string) {
-    return this.threadService.findOne(parseInt(id, 10));
+  @ApiFindOneOperation(ThreadResponseDto, 'Retrieve a single thread by ID')
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<ThreadResponseDto> {
+    return this.threadService.findOne(id);
   }
 }
