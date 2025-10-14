@@ -1,28 +1,48 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import * as dotenv from 'dotenv';
+import path from 'path';
 import { Campus } from '../../modules/user/entities/campus.entity';
 import { Role } from '../../modules/user/entities/role.entity';
 import { User } from '../../modules/user/entities/user.entity';
-import path from 'path';
 
-const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'root',
-  password: 'secret',
-  database: 'greenwich_ap',
-  entities: [path.join(__dirname, '../../modules/**/*.entity.{ts,js}')],
-  synchronize: false,
-  logging: true,
-});
+dotenv.config();
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+let config: DataSourceOptions;
+
+if (isProduction) {
+  config = {
+    type: 'postgres',
+    url: process.env.DB_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+    entities: [path.join(__dirname, '../../modules/**/*.entity.js')],
+    synchronize: false,
+    logging: false, // Changed to false for a truly silent script
+  };
+} else {
+  config = {
+    type: 'postgres',
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT || '5432', 10),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    entities: [path.join(__dirname, '../../modules/**/*.entity.{ts,js}')],
+    synchronize: false,
+    logging: false, // Changed to false for a truly silent script
+  };
+}
+
+const AppDataSource = new DataSource(config);
 
 export const seed = async (): Promise<void> => {
   try {
     await AppDataSource.initialize();
-    console.log('✅ Database connection established.');
 
-    // --- Seed Campuses ---
     const campusRepo = AppDataSource.getRepository(Campus);
     const campusData = [
       { code: 'HCM', name: 'Ho Chi Minh' },
@@ -35,11 +55,9 @@ export const seed = async (): Promise<void> => {
       const exists = await campusRepo.findOne({ where: { code: campus.code } });
       if (!exists) {
         await campusRepo.save(campus);
-        console.log(`🌱 Added campus: ${campus.name}`);
       }
     }
 
-    // --- Seed Roles ---
     const roleRepo = AppDataSource.getRepository(Role);
     const roleData = [
       { name: 'Admin' },
@@ -52,11 +70,9 @@ export const seed = async (): Promise<void> => {
       const exists = await roleRepo.findOne({ where: { name: role.name } });
       if (!exists) {
         await roleRepo.save(role);
-        console.log(`🌱 Added role: ${role.name}`);
       }
     }
 
-    // --- Seed Admin User ---
     const userRepo = AppDataSource.getRepository(User);
     const adminEmail = 'admin@greenwich.edu';
     const adminPassword = 'secret';
@@ -82,21 +98,12 @@ export const seed = async (): Promise<void> => {
         roleId: adminRole.id,
         campusId: hcmCampus.id,
       });
-      console.log(`🌱 Admin user created: ${adminEmail}`);
-    } else {
-      console.log(`ℹ️ Admin user already exists: ${adminEmail}`);
     }
-
-    console.log('✅ Seeding complete!');
-  } catch (error) {
-    console.error('❌ Error during seeding:', error);
   } finally {
     if (AppDataSource.isInitialized) {
       await AppDataSource.destroy();
-      console.log('🧹 Database connection closed.');
     }
   }
 };
 
-// Run seed when executed directly
 void seed();

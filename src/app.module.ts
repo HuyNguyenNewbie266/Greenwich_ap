@@ -13,12 +13,15 @@ import { ClassModule } from './modules/class/class.module';
 import { ThreadModule } from './modules/thread/thread.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { RoomModule } from './modules/room/room.module';
+import { TimeSlotModule } from './modules/time-slot/time-slot.module';
+import { HealthController } from './health/health.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, jwtConfig],
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -36,8 +39,9 @@ import { RoomModule } from './modules/room/room.module';
     ThreadModule,
     CommentModule,
     RoomModule,
+    TimeSlotModule,
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}
