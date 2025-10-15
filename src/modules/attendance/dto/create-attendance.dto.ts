@@ -7,6 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { ATTENDANCE_STATUS } from '../entities/attendance.entity';
+import type { AttendanceStatus } from '../entities/attendance.entity';
 
 export class CreateAttendanceDto {
   @SwaggerProperty({
@@ -32,7 +33,7 @@ export class CreateAttendanceDto {
   })
   @IsNotEmpty()
   @IsEnum(ATTENDANCE_STATUS)
-  status!: 'PRESENT' | 'ABSENT' | 'LATE' | 'EXCUSED';
+  status!: AttendanceStatus;
 
   @SwaggerProperty({
     description: 'Optional note about the attendance',
