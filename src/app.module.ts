@@ -15,6 +15,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { RoomModule } from './modules/room/room.module';
 import { TimeSlotModule } from './modules/time-slot/time-slot.module';
 import { HealthController } from './health/health.controller';
+import { AttendanceModule } from './modules/attendance/attendance.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -40,6 +41,7 @@ import { HealthController } from './health/health.controller';
     CommentModule,
     RoomModule,
     TimeSlotModule,
+    AttendanceModule,
   ],
   controllers: [HealthController],
   providers: [],
