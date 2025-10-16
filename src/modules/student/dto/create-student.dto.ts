@@ -57,7 +57,7 @@ export class CreateStudentDto {
     required: false,
   })
   @IsString()
-  faculty!: string;
+  faculty?: string;
 
   @ApiProperty({
     description: 'Student status',
