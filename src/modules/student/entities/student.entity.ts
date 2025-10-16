@@ -21,7 +21,7 @@ export class Student {
   @Column({ name: 'user_id', type: 'bigint', nullable: false })
   userId!: number;
 
-  @ManyToOne(() => User, { eager: true })
+  @ManyToOne(() => User, { eager: false })
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
@@ -37,15 +37,15 @@ export class Student {
   @Column({ name: 'student_code', type: 'varchar', length: 30, unique: true })
   studentCode!: string;
 
-  @ApiProperty({ description: 'Enrolment date' })
+  @ApiProperty({ description: 'Enrolment Day' })
   @Column({ name: 'enrolment_day', type: 'date', nullable: true })
-  enrolmentDate?: Date;
+  enrolmentDay?: Date;
 
   @ApiProperty({ description: 'Mentor (User reference)', required: false })
   @Column({ name: 'mentor_id', type: 'bigint', nullable: true })
   mentorId?: number | null;
 
-  @ManyToOne(() => User, { eager: true, nullable: true })
+  @ManyToOne(() => User, { eager: false, nullable: true })
   @JoinColumn({ name: 'mentor_id' })
   mentor?: User | null;
 
@@ -62,16 +62,6 @@ export class Student {
     default: 'ENROLLED',
   })
   status!: 'ENROLLED' | 'SUSPENDED' | 'GRADUATED' | 'DROPPED' | 'OTHER';
-
-  @ApiProperty({
-    enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'],
-  })
-  @Column({
-    type: 'enum',
-    enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'],
-    default: 'UNSPECIFIED',
-  })
-  gender!: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
 
   @ApiProperty()
   @Column({
