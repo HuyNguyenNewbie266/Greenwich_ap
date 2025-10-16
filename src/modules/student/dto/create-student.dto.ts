@@ -1,6 +1,5 @@
-import { SwaggerProperty } from '../../../common/decorators/swagger.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsEnum,
@@ -9,21 +8,25 @@ import {
 } from 'class-validator';
 
 export class CreateStudentDto {
-  @SwaggerProperty({ description: 'Reference to user account ID', example: 1 })
-  @IsNotEmpty()
-  @IsNumber()
-  userId!: number;
-
-  @SwaggerProperty({
-    description: 'Unique student code',
-    example: 'GCS123456',
+  @ApiProperty({
+    description: 'Reference to user account ID',
+    example: 1,
+    required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
+  @IsNumber()
+  userId?: number;
+
+  @ApiProperty({
+    description: 'Unique student code',
+    required: false,
+  })
+  @IsOptional()
   @IsString()
   studentCode!: string;
 
-  @SwaggerProperty({
-    description: 'Enrolment date',
+  @ApiProperty({
+    description: 'Enrolment Day',
     required: false,
     example: '2025-09-01',
   })
@@ -31,54 +34,77 @@ export class CreateStudentDto {
   @IsDateString()
   enrolmentDay?: string;
 
-  @SwaggerProperty({
+  @ApiProperty({
     description: 'Mentor ID',
     required: false,
-    example: 5,
+    example: 1,
   })
   @IsOptional()
   @IsNumber()
   mentorId?: number;
 
-  @SwaggerProperty({
+  @ApiProperty({
     description: 'Class ID',
     required: false,
-    example: 10,
+    example: 1,
   })
   @IsOptional()
   @IsNumber()
   classId?: number;
 
-  @SwaggerProperty({
+  @ApiProperty({
     description: 'Faculty name',
     example: 'Computing',
+    required: false,
   })
   @IsOptional()
   @IsString()
   faculty!: string;
 
-  @SwaggerProperty({
+  @ApiProperty({
     description: 'Student status',
     enum: ['ENROLLED', 'SUSPENDED', 'GRADUATED', 'DROPPED'],
     example: 'ENROLLED',
+    required: false,
   })
   @IsOptional()
   @IsEnum(['ENROLLED', 'SUSPENDED', 'GRADUATED', 'DROPPED'])
   status?: 'ENROLLED' | 'SUSPENDED' | 'GRADUATED' | 'DROPPED';
 
-  @SwaggerProperty({
-    description: 'Gender',
-    enum: ['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'],
-    example: 'MALE',
-  })
-  @IsOptional()
-  @IsEnum(['MALE', 'FEMALE', 'OTHER', 'UNSPECIFIED'])
-  gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
-
-  @SwaggerProperty({
+  @ApiProperty({
     description: 'Academic year',
     example: '2025-2026',
   })
   @IsString()
   academicYear!: string;
+
+  // --- New user info if not having userID ---
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  password?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  givenName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  surname?: string;
+
+  @ApiProperty({
+    description: 'Campus ID',
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  campusId?: number;
 }

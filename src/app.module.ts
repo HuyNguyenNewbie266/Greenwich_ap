@@ -16,6 +16,8 @@ import { RoomModule } from './modules/room/room.module';
 import { TimeSlotModule } from './modules/time-slot/time-slot.module';
 import { HealthController } from './health/health.controller';
 import { AttendanceModule } from './modules/attendance/attendance.module';
+import { GuardianModule } from './modules/guardian/guardian.module';
+import { StaffModule } from './staff/staff.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -42,6 +44,8 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
     RoomModule,
     TimeSlotModule,
     AttendanceModule,
+    GuardianModule,
+    StaffModule,
   ],
   controllers: [HealthController],
   providers: [],

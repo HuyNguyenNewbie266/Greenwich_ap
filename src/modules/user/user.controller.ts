@@ -64,12 +64,6 @@ export class UserController {
     }
 
     return await this.userService.updateProfile(req.user.id, dto);
-
-    // const updated = await this.userService.updateProfile(req.user.id, dto);
-    // return {
-    //   phone: updated.phone ?? undefined,
-    //   avatar: updated.avatar ?? undefined,
-    // };
   }
 
   // ---------ADMIN---------
@@ -125,11 +119,6 @@ export class UserController {
   // ACTIVATE (soft: set status=ACTIVE)
   @Patch(':id/activate')
   @ApiOperation({ summary: 'Activate user (set status=ACTIVE)' })
-  @ApiResponse({
-    status: 200,
-    description: 'User activated',
-    type: User,
-  })
   @ApiActivateOperation(User)
   activate(@Param('id', ParseIntPipe) id: number) {
     return this.userService.activate(id);
@@ -138,11 +127,6 @@ export class UserController {
   // DELETE (soft: set status=INACTIVE)
   @Patch(':id/deactivate')
   @ApiOperation({ summary: 'Deactivate user (set status=INACTIVE)' })
-  @ApiResponse({
-    status: 200,
-    description: 'User deactivated',
-    type: User,
-  })
   @ApiDeactivateOperation(User)
   deactivate(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deactivate(id);

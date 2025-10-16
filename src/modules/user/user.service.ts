@@ -20,6 +20,58 @@ export class UserService {
     private readonly studentRepo: Repository<Student>,
   ) {}
 
+  async create(dto: CreateUserDto): Promise<User> {
+    const role = await this.roleRepo.findOne({ where: { id: dto.roleId } });
+    if (!role) throw new NotFoundException('Role not found');
+
+    const campus = dto.campusId
+      ? await this.campusRepo.findOne({ where: { id: dto.campusId } })
+      : null;
+    if (dto.campusId && !campus)
+      throw new NotFoundException('Campus not found');
+
+    const hashed = dto.password ? await bcrypt.hash(dto.password, 10) : null;
+
+    const ent = this.userRepo.create({
+      roleId: role.id,
+      role,
+      campusId: campus ? campus.id : null,
+      campus: campus ?? null,
+      email: dto.email,
+      password: hashed,
+      givenName: dto.givenName ?? null,
+      surname: dto.surname ?? null,
+      gender: dto.gender ?? 'UNSPECIFIED',
+    } as Partial<User>);
+
+    const savedUser = await this.userRepo.save(ent);
+
+    const fullUser = await this.userRepo.findOne({
+      where: { id: savedUser.id },
+      relations: ['role', 'campus'],
+    });
+    if (!fullUser) {
+      throw new NotFoundException('User ID not found after creation');
+    }
+
+    if (role.name === 'Student') {
+      let mentor = null;
+      if (dto.mentorId) {
+        mentor = await this.userRepo.findOne({ where: { id: dto.mentorId } });
+        if (!mentor) throw new NotFoundException('Mentor not found');
+      }
+
+      const student = this.studentRepo.create({
+        user: fullUser ?? undefined,
+        studentCode: dto.studentCode ?? `GCS23000${savedUser.id}`,
+        mentor,
+      });
+      await this.studentRepo.save(student);
+    }
+
+    return fullUser ?? savedUser;
+  }
+
   async findAll(opts?: { page?: number; limit?: number; search?: string }) {
     const qb = this.userRepo
       .createQueryBuilder('u')
@@ -52,50 +104,6 @@ export class UserService {
       where: { email },
       relations: ['role', 'campus'],
     });
-  }
-
-  async create(dto: CreateUserDto): Promise<User> {
-    const role = await this.roleRepo.findOne({ where: { id: dto.roleId } });
-    if (!role) throw new NotFoundException('Role not found');
-
-    const campus = dto.campusId
-      ? await this.campusRepo.findOne({ where: { id: dto.campusId } })
-      : null;
-    if (dto.campusId && !campus)
-      throw new NotFoundException('Campus not found');
-
-    const hashed = dto.password ? await bcrypt.hash(dto.password, 10) : null;
-
-    const ent = this.userRepo.create({
-      roleId: role.id,
-      role,
-      campusId: campus ? campus.id : null,
-      campus: campus ?? null,
-      email: dto.email,
-      password: hashed,
-      givenName: dto.givenName ?? null,
-      surname: dto.surname ?? null,
-      gender: dto.gender ?? 'UNSPECIFIED',
-    } as Partial<User>);
-
-    const savedUser = await this.userRepo.save(ent);
-
-    if (role.name === 'Student') {
-      let mentor = null;
-      if (dto.mentorId) {
-        mentor = await this.userRepo.findOne({ where: { id: dto.mentorId } });
-        if (!mentor) throw new NotFoundException('Mentor not found');
-      }
-
-      const student = this.studentRepo.create({
-        user: savedUser,
-        studentCode: dto.studentCode ?? `GCS23000${savedUser.id}`,
-        mentor,
-      });
-      await this.studentRepo.save(student);
-    }
-
-    return savedUser;
   }
 
   async update(id: number, dto: UpdateUserDto): Promise<User> {
@@ -138,7 +146,7 @@ export class UserService {
   async updateProfile(userId: number, dto: UserProfileDto): Promise<User> {
     const user = await this.userRepo.findOne({ where: { id: userId } });
     if (!user) {
-      throw new Error('User not found');
+      throw new Error('User ID not found to update their profile');
     }
 
     if (dto.phone !== undefined) {
@@ -175,7 +183,7 @@ export class UserService {
   async remove(id: number): Promise<{ success: boolean }> {
     const result = await this.userRepo.delete(id);
     if (result.affected === 0) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException('User ID not found to remove');
     }
     return { success: true };
   }
@@ -215,5 +223,11 @@ export class UserService {
         refreshTokenExpiresAt: null,
       },
     );
+  }
+
+  async findRoleByName(name: string): Promise<Role> {
+    const role = await this.roleRepo.findOne({ where: { name } });
+    if (!role) throw new NotFoundException(`Role '${name}' not found`);
+    return role;
   }
 }

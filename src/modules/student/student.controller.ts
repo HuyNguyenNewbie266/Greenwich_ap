@@ -18,7 +18,7 @@ import {
   ApiDeactivateOperation,
   ApiStudentFilterQuery,
 } from '../../common/decorators/swagger.decorator';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -38,8 +38,8 @@ export class StudentController {
   // CREATE
   @Post()
   @ApiCreateOperation(Student, 'Create new student')
-  create(@Body() dto: CreateStudentDto) {
-    return this.studentService.create(dto);
+  async create(@Body() dto: CreateStudentDto) {
+    return await this.studentService.create(dto);
   }
 
   // READ all
@@ -69,7 +69,12 @@ export class StudentController {
 
   // UPDATE
   @Patch(':id')
-  @ApiUpdateOperation(Student, 'Update student details')
+  @ApiOperation({ summary: 'Update student details' })
+  @ApiResponse({
+    status: 200,
+    description: 'Student updated successfully',
+    type: Student,
+  })
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStudentDto) {
     return this.studentService.update(id, dto);
   }

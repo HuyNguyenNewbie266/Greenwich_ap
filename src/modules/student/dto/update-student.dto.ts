@@ -1,15 +1,15 @@
 import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
 import { CreateStudentDto } from './create-student.dto';
-import { SwaggerProperty } from '../../../common/decorators/swagger.decorator';
 
 export class UpdateStudentDto extends PartialType(CreateStudentDto) {
-  @SwaggerProperty({
+  @ApiProperty({
     description: 'User ID cannot be updated',
     readOnly: true,
   })
   userId!: number;
 
-  @SwaggerProperty({
+  @ApiProperty({
     description: 'Student code cannot be updated',
     readOnly: true,
   })

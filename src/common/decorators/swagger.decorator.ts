@@ -277,7 +277,6 @@ export const ApiStudentFilterQuery = () =>
       description: 'Mentor ID',
       required: false,
       type: Number,
-      example: 10,
     }),
     ApiQuery({
       name: 'status',
@@ -290,7 +289,6 @@ export const ApiStudentFilterQuery = () =>
       description: 'Academic Year',
       required: false,
       type: String,
-      example: '2025-2026',
     }),
   );
 
@@ -315,7 +313,7 @@ export const ApiActivateOperation = <T extends Type<unknown>>(
       description: `User has been successfully activated`,
       type: entity,
     }),
-    ApiNotFoundResponse({ description: `User not found` }),
+    ApiNotFoundResponse({ description: `User ID not found to activate` }),
     CommonApiResponses(),
   );
 
@@ -340,6 +338,6 @@ export const ApiDeactivateOperation = <T extends Type<unknown>>(
       description: `User has been successfully deactivated`,
       type: entity,
     }),
-    ApiNotFoundResponse({ description: `User not found` }),
+    ApiNotFoundResponse({ description: `User ID not found to deactivate` }),
     CommonApiResponses(),
   );
