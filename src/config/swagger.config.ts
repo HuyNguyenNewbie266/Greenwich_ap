@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { swaggerAutoAuthScript } from './swagger-auto-auth';
 
 /**
  * Interface for Swagger configuration options
@@ -159,5 +160,6 @@ export const setupSwagger = (
     customCssUrl: [
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
     ],
+    customJsStr: swaggerAutoAuthScript,
   });
 };
