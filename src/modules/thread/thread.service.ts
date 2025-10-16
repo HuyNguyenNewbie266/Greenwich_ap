@@ -79,4 +79,26 @@ export class ThreadService {
 
     return this.threadRepo.save(thread);
   }
+
+  async deleteThread(
+    currentUserId: number,
+    threadId: number,
+  ): Promise<{ message: string }> {
+    const thread = await this.threadRepo.findOne({
+      where: { id: threadId },
+      relations: ['createdBy'],
+    });
+
+    if (!thread) {
+      throw new NotFoundException('Thread not found');
+    }
+
+    if (thread.createdBy.id !== currentUserId) {
+      throw new ForbiddenException('You can only delete your own threads');
+    }
+
+    await this.threadRepo.remove(thread);
+
+    return { message: 'Thread deleted successfully' };
+  }
 }

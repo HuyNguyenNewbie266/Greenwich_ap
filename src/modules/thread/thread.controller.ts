@@ -6,6 +6,7 @@ import {
   Get,
   UseGuards,
   ParseIntPipe,
+  Delete,
   Req,
 } from '@nestjs/common';
 import { ThreadService } from './thread.service';
@@ -18,6 +19,7 @@ import {
   ApiCreateOperation,
   ApiFindAllOperation,
   ApiFindOneOperation,
+  ApiDeleteOperation,
 } from '../../common/decorators/swagger.decorator';
 import type { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 
@@ -49,5 +51,15 @@ export class ThreadController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<ThreadResponseDto> {
     return this.threadService.findOne(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @ApiDeleteOperation(ThreadResponseDto, 'Delete a thread by ID')
+  async remove(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
+    return this.threadService.deleteThread(req.user.id, id);
   }
 }
