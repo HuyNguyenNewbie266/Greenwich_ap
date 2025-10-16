@@ -62,7 +62,7 @@ export class UserService {
       }
 
       const student = this.studentRepo.create({
-        user: fullUser ?? undefined,
+        user: fullUser,
         studentCode: dto.studentCode ?? `GCS23000${savedUser.id}`,
         mentor,
       });

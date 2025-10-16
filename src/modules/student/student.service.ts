@@ -189,7 +189,6 @@ export class StudentService {
       throw new NotFoundException(`Student not found`);
     }
 
-    student.user.status = 'INACTIVE';
     await this.userService.deactivate(student.user.id);
     return await this.studentRepo.save(student);
   }

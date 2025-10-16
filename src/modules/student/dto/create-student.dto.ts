@@ -21,7 +21,6 @@ export class CreateStudentDto {
     description: 'Unique student code',
     required: false,
   })
-  @IsOptional()
   @IsString()
   studentCode!: string;
 
@@ -57,7 +56,6 @@ export class CreateStudentDto {
     example: 'Computing',
     required: false,
   })
-  @IsOptional()
   @IsString()
   faculty!: string;
 

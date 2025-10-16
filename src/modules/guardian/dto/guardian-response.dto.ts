@@ -12,7 +12,7 @@ class UserMiniDto {
 
   @ApiProperty()
   @Expose()
-  phone!: number;
+  phone!: string;
 
   @ApiProperty()
   @Expose()
