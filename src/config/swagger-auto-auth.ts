@@ -19,7 +19,7 @@ export const swaggerAutoAuthScript = `
             
             // Check if this is a login endpoint
             const url = args[0];
-            if (typeof url === 'string' && (url.includes('/auth/login') || url.includes('/login'))) {
+            if (typeof url === 'string' && url.includes('/auth/login')) {
               try {
                 const data = await clonedResponse.json();
                 
@@ -42,8 +42,6 @@ export const swaggerAutoAuthScript = `
                     });
                     
                     // Show success message
-                    
-                    // Show a toast notification
                     const toast = document.createElement('div');
                     toast.innerHTML = '✅ Auto-authorized with access token';
                     toast.style.cssText = 'position:fixed;top:20px;right:20px;background:#4caf50;color:white;padding:15px 20px;border-radius:5px;z-index:9999;box-shadow:0 2px 5px rgba(0,0,0,0.2);font-family:sans-serif;';
@@ -53,7 +51,7 @@ export const swaggerAutoAuthScript = `
                 }
               } catch (e) {
                 // Ignore JSON parse errors
-                console.log(e);
+                console.error(e);
               }
             }
             
