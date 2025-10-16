@@ -113,4 +113,26 @@ export class CommentService {
       excludeExtraneousValues: true,
     });
   }
+
+  async deleteComment(currentUserId: number, commentId: number): Promise<void> {
+    const comment = await this.commentRepo.findOne({
+      where: { id: commentId },
+      relations: ['createdBy', 'thread', 'thread.createdBy'],
+    });
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    const isCommentAuthor = comment.createdBy.id === currentUserId;
+    const isThreadAuthor = comment.thread.createdBy.id === currentUserId;
+
+    if (!isCommentAuthor && !isThreadAuthor) {
+      throw new ForbiddenException(
+        'You can only delete your own comments or comments in your threads',
+      );
+    }
+
+    await this.commentRepo.remove(comment);
+  }
 }
