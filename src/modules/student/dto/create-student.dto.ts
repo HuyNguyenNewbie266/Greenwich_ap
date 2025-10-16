@@ -22,7 +22,7 @@ export class CreateStudentDto {
     required: false,
   })
   @IsString()
-  studentCode!: string;
+  studentCode?: string;
 
   @ApiProperty({
     description: 'Enrolment Day',
