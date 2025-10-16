@@ -6,6 +6,8 @@ import {
   Req,
   UseGuards,
   Get,
+  Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiParam } from '@nestjs/swagger';
@@ -53,5 +55,19 @@ export class CommentController {
   })
   async getThreadComments(@Param('threadId') threadId: string) {
     return this.commentService.findByThread(Number(threadId));
+  }
+
+  @Delete(':id')
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the comment to delete',
+    type: 'number',
+  })
+  async deleteComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<{ message: string }> {
+    await this.commentService.deleteComment(req.user.id, id);
+    return { message: 'Comment deleted successfully' };
   }
 }
