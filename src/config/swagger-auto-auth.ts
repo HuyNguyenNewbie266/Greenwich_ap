@@ -25,7 +25,6 @@ export const swaggerAutoAuthScript = `
                 
                 // Check if response contains accessToken
                 if (data && data.accessToken) {
-                  console.log('🔐 Access token detected, auto-authorizing Swagger...');
                   
                   // Get Swagger UI instance
                   const ui = window.ui;
@@ -43,7 +42,6 @@ export const swaggerAutoAuthScript = `
                     });
                     
                     // Show success message
-                    console.log('✅ Swagger authorized successfully!');
                     
                     // Show a toast notification
                     const toast = document.createElement('div');
@@ -55,15 +53,13 @@ export const swaggerAutoAuthScript = `
                 }
               } catch (e) {
                 // Ignore JSON parse errors
-                console.log('Response is not JSON or parsing failed');
+                console.log(e);
               }
             }
             
             return response;
           });
       };
-      
-      console.log('🚀 Swagger auto-authorization interceptor initialized');
     }, 1000);
   });
 `;
