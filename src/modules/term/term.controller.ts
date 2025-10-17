@@ -54,8 +54,10 @@ export class TermController {
   findAll(
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
-    @Query('programmeId', new ParseIntPipe({ optional: true })) programmeId?: number,
-    @Query('departmentId', new ParseIntPipe({ optional: true })) departmentId?: number,
+    @Query('programmeId', new ParseIntPipe({ optional: true }))
+    programmeId?: number,
+    @Query('departmentId', new ParseIntPipe({ optional: true }))
+    departmentId?: number,
     @Query('academicYear') academicYear?: string,
     @Query('code') code?: string,
     @Query('name') name?: string,

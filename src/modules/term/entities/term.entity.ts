@@ -47,11 +47,21 @@ export class Term {
   })
   academicYear?: string | null;
 
-  @ApiProperty({ required: false, nullable: true, type: String, format: 'date' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: String,
+    format: 'date',
+  })
   @Column({ name: 'start_date', type: 'date', nullable: true })
   startDate?: string | null;
 
-  @ApiProperty({ required: false, nullable: true, type: String, format: 'date' })
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    type: String,
+    format: 'date',
+  })
   @Column({ name: 'end_date', type: 'date', nullable: true })
   endDate?: string | null;
 

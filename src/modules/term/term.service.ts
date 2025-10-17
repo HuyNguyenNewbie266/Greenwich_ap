@@ -94,9 +94,7 @@ export class TermService {
 
     return terms
       .slice()
-      .sort((a, b) =>
-        (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
-      );
+      .sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
   }
 
   async findOne(id: number) {
@@ -141,7 +139,9 @@ export class TermService {
         'code' in error &&
         (error as { code: string }).code === '23505'
       ) {
-        throw new ConflictException('Term code already exists for this programme');
+        throw new ConflictException(
+          'Term code already exists for this programme',
+        );
       }
       throw error;
     }
@@ -188,7 +188,9 @@ export class TermService {
         'code' in error &&
         (error as { code: string }).code === '23505'
       ) {
-        throw new ConflictException('Term code already exists for this programme');
+        throw new ConflictException(
+          'Term code already exists for this programme',
+        );
       }
       throw error;
     }
