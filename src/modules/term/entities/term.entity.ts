@@ -39,12 +39,7 @@ export class Term {
   name!: string;
 
   @ApiProperty({ required: false, nullable: true })
-  @Column({
-    name: 'academic_year',
-    type: 'varchar',
-    length: 20,
-    nullable: true,
-  })
+  @Column({ name: 'academic_year', length: 20, nullable: true })
   academicYear?: string | null;
 
   @ApiProperty({ required: false, nullable: true, type: String, format: 'date' })
