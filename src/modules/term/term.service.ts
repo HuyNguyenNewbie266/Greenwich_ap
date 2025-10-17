@@ -76,20 +76,20 @@ export class TermService {
       .take(limit);
 
     const rows = await idQuery.getRawMany<{ term_id: string }>();
-    const ids = rows.map((row) => BigInt(row.term_id));
+    const ids = rows.map((row) => row.term_id);
 
     if (ids.length === 0) {
       return [];
     }
 
     const terms = await this.termRepo.find({
-      where: { id: In(ids.map((id) => id.toString())) },
+      where: { id: In(ids) },
       relations: ['programme', 'departments'],
       order: { startDate: 'DESC', id: 'DESC' },
     });
 
     const orderMap = new Map<string, number>(
-      ids.map((id, index) => [id.toString(), index]),
+      ids.map((id, index) => [id, index]),
     );
 
     return terms
