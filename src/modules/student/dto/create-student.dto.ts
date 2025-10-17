@@ -10,7 +10,6 @@ import {
 export class CreateStudentDto {
   @ApiProperty({
     description: 'Reference to user account ID',
-    example: 1,
     required: false,
   })
   @IsOptional()
