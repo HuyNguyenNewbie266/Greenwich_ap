@@ -197,11 +197,10 @@ export class TermService {
   }
 
   async remove(id: number) {
-    const term = await this.termRepo.findOne({ where: { id } });
-    if (!term) {
+    const result = await this.termRepo.delete(id);
+    if (result.affected === 0) {
       throw new NotFoundException('Term not found');
     }
-    await this.termRepo.remove(term);
     return { deleted: true };
   }
 
