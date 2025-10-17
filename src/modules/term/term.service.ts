@@ -36,45 +36,67 @@ export class TermService {
     const page = opts.page && opts.page > 0 ? opts.page : 1;
     const limit = opts.limit && opts.limit > 0 ? opts.limit : 25;
 
-    const query = this.termRepo
+    const baseQuery = this.termRepo
       .createQueryBuilder('term')
-      .leftJoinAndSelect('term.programme', 'programme')
-      .leftJoinAndSelect('term.departments', 'department');
+      .leftJoin('term.departments', 'department');
 
     if (opts.programmeId) {
-      query.andWhere('term.programme_id = :programmeId', {
+      baseQuery.andWhere('term.programme_id = :programmeId', {
         programmeId: opts.programmeId,
       });
     }
     if (opts.departmentId) {
-      query.andWhere('department.id = :departmentId', {
+      baseQuery.andWhere('department.id = :departmentId', {
         departmentId: opts.departmentId,
       });
     }
     if (opts.academicYear) {
-      query.andWhere('term.academic_year = :academicYear', {
+      baseQuery.andWhere('term.academic_year = :academicYear', {
         academicYear: opts.academicYear,
       });
     }
     if (opts.code) {
-      query.andWhere('term.code ILIKE :code', {
+      baseQuery.andWhere('term.code ILIKE :code', {
         code: `%${opts.code}%`,
       });
     }
     if (opts.name) {
-      query.andWhere('term.name ILIKE :name', {
+      baseQuery.andWhere('term.name ILIKE :name', {
         name: `%${opts.name}%`,
       });
     }
 
-    query
+    const idQuery = baseQuery
+      .clone()
+      .select(['term.id AS term_id', 'term.start_date AS term_start_date'])
+      .distinct(true)
       .orderBy('term.start_date', 'DESC')
       .addOrderBy('term.id', 'DESC')
       .skip((page - 1) * limit)
       .take(limit);
 
-    const terms = await query.getMany();
-    return terms;
+    const rows = await idQuery.getRawMany<{ term_id: string }>();
+    const ids = rows.map((row) => Number(row.term_id));
+
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const terms = await this.termRepo.find({
+      where: { id: In(ids) },
+      relations: ['programme', 'departments'],
+      order: { startDate: 'DESC', id: 'DESC' },
+    });
+
+    const orderMap = new Map<number, number>(
+      ids.map((id, index) => [id, index]),
+    );
+
+    return terms
+      .slice()
+      .sort((a, b) =>
+        (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+      );
   }
 
   async findOne(id: number) {
@@ -100,6 +122,7 @@ export class TermService {
 
     const entity = this.termRepo.create({
       programme,
+      programmeId: programme.id,
       code: dto.code,
       name: dto.name,
       academicYear: dto.academicYear ?? null,
@@ -112,7 +135,15 @@ export class TermService {
       const saved = await this.termRepo.save(entity);
       return this.findOne(saved.id);
     } catch (error: unknown) {
-      return this.handleUniqueConstraintError(error);
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code: string }).code === '23505'
+      ) {
+        throw new ConflictException('Term code already exists for this programme');
+      }
+      throw error;
     }
   }
 
@@ -125,7 +156,7 @@ export class TermService {
       throw new NotFoundException('Term not found');
     }
 
-    if (dto.programmeId !== undefined && dto.programmeId !== term.programme?.id) {
+    if (dto.programmeId !== undefined && dto.programmeId !== term.programmeId) {
       const programme = await this.programmeRepo.findOne({
         where: { id: dto.programmeId },
       });
@@ -133,6 +164,7 @@ export class TermService {
         throw new NotFoundException('Programme not found');
       }
       term.programme = programme;
+      term.programmeId = programme.id;
     }
 
     if (dto.code !== undefined) term.code = dto.code;
@@ -150,7 +182,15 @@ export class TermService {
       const saved = await this.termRepo.save(term);
       return this.findOne(saved.id);
     } catch (error: unknown) {
-      return this.handleUniqueConstraintError(error);
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        (error as { code: string }).code === '23505'
+      ) {
+        throw new ConflictException('Term code already exists for this programme');
+      }
+      throw error;
     }
   }
 
@@ -173,26 +213,13 @@ export class TermService {
     });
 
     if (departments.length !== ids.length) {
-      const foundIds = new Set(departments.map((dept) => dept.id));
-      const missing = ids.filter((id) => !foundIds.has(id));
+      const foundIds = new Set(departments.map((dept) => Number(dept.id)));
+      const missing = ids.filter((id) => !foundIds.has(Number(id)));
       throw new NotFoundException(
         `Departments not found: ${missing.map((id) => `#${id}`).join(', ')}`,
       );
     }
 
     return departments;
-  }
-
-  private handleUniqueConstraintError(error: unknown): never {
-    if (
-      typeof error === 'object' &&
-      error !== null &&
-      'code' in error &&
-      (error as { code?: string }).code === '23505'
-    ) {
-      throw new ConflictException('Term code already exists for this programme');
-    }
-
-    throw error;
   }
 }
