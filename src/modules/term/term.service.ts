@@ -135,15 +135,7 @@ export class TermService {
       const saved = await this.termRepo.save(entity);
       return this.findOne(saved.id);
     } catch (error: unknown) {
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        (error as { code: string }).code === '23505'
-      ) {
-        throw new ConflictException('Term code already exists for this programme');
-      }
-      throw error;
+      this.handleUniqueConstraintError(error);
     }
   }
 
@@ -182,15 +174,7 @@ export class TermService {
       const saved = await this.termRepo.save(term);
       return this.findOne(saved.id);
     } catch (error: unknown) {
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        (error as { code: string }).code === '23505'
-      ) {
-        throw new ConflictException('Term code already exists for this programme');
-      }
-      throw error;
+      this.handleUniqueConstraintError(error);
     }
   }
 
@@ -213,13 +197,26 @@ export class TermService {
     });
 
     if (departments.length !== ids.length) {
-      const foundIds = new Set(departments.map((dept) => Number(dept.id)));
-      const missing = ids.filter((id) => !foundIds.has(Number(id)));
+      const foundIds = new Set(departments.map((dept) => dept.id));
+      const missing = ids.filter((id) => !foundIds.has(id));
       throw new NotFoundException(
         `Departments not found: ${missing.map((id) => `#${id}`).join(', ')}`,
       );
     }
 
     return departments;
+  }
+
+  private handleUniqueConstraintError(error: unknown): never {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as { code?: string }).code === '23505'
+    ) {
+      throw new ConflictException('Term code already exists for this programme');
+    }
+
+    throw error;
   }
 }
