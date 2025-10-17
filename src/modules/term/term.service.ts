@@ -125,7 +125,7 @@ export class TermService {
       throw new NotFoundException('Term not found');
     }
 
-    if (dto.programmeId !== undefined && dto.programmeId !== term.programmeId) {
+    if (dto.programmeId !== undefined && dto.programmeId !== term.programme?.id) {
       const programme = await this.programmeRepo.findOne({
         where: { id: dto.programmeId },
       });
