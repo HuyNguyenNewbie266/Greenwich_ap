@@ -61,13 +61,13 @@ export class TermController {
     @Query('name') name?: string,
   ) {
     return this.svc.findAll({
-      page: page ?? undefined,
-      limit: limit ?? undefined,
-      programmeId: programmeId ?? undefined,
-      departmentId: departmentId ?? undefined,
-      academicYear: academicYear ?? undefined,
-      code: code ?? undefined,
-      name: name ?? undefined,
+      page: page,
+      limit: limit,
+      programmeId: programmeId,
+      departmentId: departmentId,
+      academicYear: academicYear,
+      code: code,
+      name: name,
     });
   }
 
