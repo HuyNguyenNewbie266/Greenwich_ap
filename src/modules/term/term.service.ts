@@ -33,41 +33,70 @@ export class TermService {
   ) {}
 
   async findAll(opts: FindAllOptions = {}) {
-    const qb = this.termRepo
+    const page = opts.page && opts.page > 0 ? opts.page : 1;
+    const limit = opts.limit && opts.limit > 0 ? opts.limit : 25;
+
+    const baseQuery = this.termRepo
       .createQueryBuilder('term')
-      .leftJoinAndSelect('term.programme', 'programme')
-      .leftJoinAndSelect('term.departments', 'department')
-      .distinct(true)
-      .orderBy('term.start_date', 'DESC')
-      .addOrderBy('term.id', 'DESC');
+      .leftJoin('term.departments', 'department');
 
     if (opts.programmeId) {
-      qb.andWhere('term.programme_id = :programmeId', {
+      baseQuery.andWhere('term.programme_id = :programmeId', {
         programmeId: opts.programmeId,
       });
     }
     if (opts.departmentId) {
-      qb.andWhere('department.id = :departmentId', {
+      baseQuery.andWhere('department.id = :departmentId', {
         departmentId: opts.departmentId,
       });
     }
     if (opts.academicYear) {
-      qb.andWhere('term.academic_year = :academicYear', {
+      baseQuery.andWhere('term.academic_year = :academicYear', {
         academicYear: opts.academicYear,
       });
     }
     if (opts.code) {
-      qb.andWhere('term.code ILIKE :code', { code: `%${opts.code}%` });
+      baseQuery.andWhere('term.code ILIKE :code', {
+        code: `%${opts.code}%`,
+      });
     }
     if (opts.name) {
-      qb.andWhere('term.name ILIKE :name', { name: `%${opts.name}%` });
+      baseQuery.andWhere('term.name ILIKE :name', {
+        name: `%${opts.name}%`,
+      });
     }
 
-    const page = opts.page && opts.page > 0 ? opts.page : 1;
-    const limit = opts.limit && opts.limit > 0 ? opts.limit : 25;
-    qb.skip((page - 1) * limit).take(limit);
+    const idQuery = baseQuery
+      .clone()
+      .select(['term.id AS term_id', 'term.start_date AS term_start_date'])
+      .distinct(true)
+      .orderBy('term.start_date', 'DESC')
+      .addOrderBy('term.id', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
-    return qb.getMany();
+    const rows = await idQuery.getRawMany<{ term_id: string }>();
+    const ids = rows.map((row) => Number(row.term_id));
+
+    if (ids.length === 0) {
+      return [];
+    }
+
+    const terms = await this.termRepo.find({
+      where: { id: In(ids) },
+      relations: ['programme', 'departments'],
+      order: { startDate: 'DESC', id: 'DESC' },
+    });
+
+    const orderMap = new Map<number, number>(
+      ids.map((id, index) => [id, index]),
+    );
+
+    return terms
+      .slice()
+      .sort((a, b) =>
+        (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+      );
   }
 
   async findOne(id: number) {
