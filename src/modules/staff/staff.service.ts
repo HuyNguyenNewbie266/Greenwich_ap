@@ -31,7 +31,7 @@ export class StaffService {
     return await this.staffRepo.manager.transaction(async (manager) => {
       let user: User;
 
-      // No having userId, add new user
+      // No userId provided, add new user
       if (!dto.userId) {
         if (!dto.email) throw new BadRequestException('Email is required');
 
@@ -104,9 +104,16 @@ export class StaffService {
     return this.staffRepo.save(staff);
   }
 
-  async remove(id: number): Promise<void> {
+  // DELETE (soft: set user status = INACTIVE)
+  async deactivate(id: number): Promise<{ success: true }> {
     const staff = await this.findOne(id);
-    await this.staffRepo.remove(staff);
+    if (!staff) {
+      throw new NotFoundException(`Staff not found`);
+    }
+
+    await this.userService.deactivate(staff.user.id);
+    await this.staffRepo.save(staff);
+    return { success: true };
   }
 
   // =================================

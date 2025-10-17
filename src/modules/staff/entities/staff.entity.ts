@@ -40,20 +40,20 @@ export class Staff {
   endDate?: Date;
 
   @ApiProperty({
-    enum: ['ACTIVE', 'INACTIVE', 'SABBATICAL', 'LEFT', 'OTHER'],
+    enum: ['ACTIVE', 'INACTIVE', 'SABBATICAL', 'LEFT'],
   })
   @Column({
     type: 'enum',
-    enum: ['ACTIVE', 'INACTIVE', 'SABBATICAL', 'LEFT', 'OTHER'],
+    enum: ['ACTIVE', 'INACTIVE', 'SABBATICAL', 'LEFT'],
     default: 'ACTIVE',
   })
-  status!: 'ACTIVE' | 'INACTIVE' | 'SABBATICAL' | 'LEFT' | 'OTHER';
+  status!: 'ACTIVE' | 'INACTIVE' | 'SABBATICAL' | 'LEFT';
 
   @ApiProperty()
   @Column({
     name: 'notes',
     type: 'varchar',
-    length: 30,
+    length: 500,
     nullable: true,
   })
   notes?: string;

@@ -7,18 +7,15 @@ import {
   Param,
   Delete,
   HttpStatus,
+  UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
-import { StaffService } from './staff.service';
-import { CreateStaffDto } from './dto/create-staff.dto';
-import { UpdateStaffDto } from './dto/update-staff.dto';
-import { ApiController } from '../../common/decorators/swagger.decorator';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { UseGuards } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { NotFoundException } from '@nestjs/common';
 import {
+  ApiController,
   ApiCreateOperation,
   ApiUpdateOperation,
   ApiFindOneOperation,
@@ -26,6 +23,9 @@ import {
   ApiDeleteOperation,
 } from '../../common/decorators/swagger.decorator';
 import { Staff } from './entities/staff.entity';
+import { StaffService } from './staff.service';
+import { CreateStaffDto } from './dto/create-staff.dto';
+import { UpdateStaffDto } from './dto/update-staff.dto';
 import { SetStaffRoleDto } from './dto/set-staff-role.dto';
 import { GetStaffRoleResponseDto } from './dto/get-staff-role-response.dto';
 
@@ -65,10 +65,10 @@ export class StaffController {
     return this.staffService.update(+id, updateStaffDto);
   }
 
-  @Delete(':id')
+  @Delete(':id/status')
   @ApiDeleteOperation(Staff)
   remove(@Param('id') id: string) {
-    return this.staffService.remove(+id);
+    return this.staffService.deactivate(+id);
   }
 
   // =================

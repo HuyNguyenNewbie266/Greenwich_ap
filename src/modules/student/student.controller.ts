@@ -69,7 +69,7 @@ export class StudentController {
 
   // UPDATE
   @Patch(':id')
-  @ApiUpdateOperation(Student, 'Update students details')
+  @ApiUpdateOperation(Student, 'Update student details')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStudentDto) {
     return this.studentService.update(id, dto);
   }
