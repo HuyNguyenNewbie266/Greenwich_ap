@@ -85,7 +85,6 @@ export class TermService {
     const terms = await this.termRepo.find({
       where: { id: In(ids) },
       relations: ['programme', 'departments'],
-      order: { startDate: 'DESC', id: 'DESC' },
     });
 
     const orderMap = new Map<number, number>(
