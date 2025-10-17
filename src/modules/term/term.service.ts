@@ -135,7 +135,7 @@ export class TermService {
       const saved = await this.termRepo.save(entity);
       return this.findOne(saved.id);
     } catch (error: unknown) {
-      this.handleUniqueConstraintError(error);
+      return this.handleUniqueConstraintError(error);
     }
   }
 
@@ -174,7 +174,7 @@ export class TermService {
       const saved = await this.termRepo.save(term);
       return this.findOne(saved.id);
     } catch (error: unknown) {
-      this.handleUniqueConstraintError(error);
+      return this.handleUniqueConstraintError(error);
     }
   }
 
