@@ -66,7 +66,7 @@ export class Term {
   endDate?: string | null;
 
   @ApiProperty({ type: () => [Department] })
-  @ManyToMany(() => Department, { eager: true })
+  @ManyToMany(() => Department)
   @JoinTable({
     name: 'term_department',
     joinColumn: { name: 'term_id', referencedColumnName: 'id' },
