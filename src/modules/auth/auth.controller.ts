@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -65,24 +66,42 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Handle Google OAuth callback' })
   @CommonApiResponses()
-  async googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
+  googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
     if (!req.user || !req.user.email) {
       throw new Error('Google authentication failed');
     }
-    const tokens = await this.authService.handleGoogleLogin(req.user);
+    const authCode = this.authService.createAuthCode(req.user);
+
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth/bridge?code=${authCode}`;
+    return res.redirect(redirectUrl);
+  }
+
+  @Post('exchange')
+  async exchangeCode(@Body() body: { code: string }, @Res() res: Response) {
+    const userData = this.authService.verifyAuthCode(body.code);
+    if (!userData) {
+      throw new UnauthorizedException('Invalid or expired code');
+    }
+
+    const tokens = await this.authService.handleGoogleLogin(userData);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none' as const,
+      domain: process.env.COOKIE_DOMAIN || 'localhost',
+    };
 
     res.cookie('access_token', tokens.accessToken, {
-      httpOnly: true,
-      secure: true,
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
     });
     res.cookie('refresh_token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    // Redirect back to frontend
-    // return res.redirect('http://localhost:5173/');
 
-    return res.json(tokens);
+    return res.json({ success: true });
   }
 
   @Get('me')

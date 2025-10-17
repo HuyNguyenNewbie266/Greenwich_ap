@@ -7,10 +7,15 @@ import { JwtPayload } from './types/jwt-payload.type';
 import { User } from '../user/entities/user.entity';
 import bcrypt from 'bcrypt';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { randomBytes } from 'crypto';
+import { randomBytes, randomUUID } from 'crypto';
 
 @Injectable()
 export class AuthService {
+  private tempCodes = new Map<
+    string,
+    { data: GoogleUserDto; expiresAt: number }
+  >();
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -201,5 +206,25 @@ export class AuthService {
     } catch (err: unknown) {
       console.error('Error during logout token cleanup:', err);
     }
+  }
+
+  createAuthCode(user: GoogleUserDto): string {
+    const code = randomUUID();
+    const expiresAt = Date.now() + 60 * 1000; // 1 minute expiry
+    this.tempCodes.set(code, { data: user, expiresAt });
+    return code;
+  }
+
+  verifyAuthCode(code: string): GoogleUserDto | null {
+    const entry = this.tempCodes.get(code);
+    if (!entry) return null;
+
+    if (Date.now() > entry.expiresAt) {
+      this.tempCodes.delete(code);
+      return null;
+    }
+
+    this.tempCodes.delete(code); // one-time use
+    return entry.data;
   }
 }
