@@ -73,8 +73,13 @@ export class TermService {
       .skip((page - 1) * limit)
       .take(limit);
 
-    const terms = await query.getMany();
-    return terms;
+    const [terms, total] = await query.getManyAndCount();
+    return {
+      data: terms,
+      total,
+      page,
+      limit,
+    };
   }
 
   async findOne(id: number) {
