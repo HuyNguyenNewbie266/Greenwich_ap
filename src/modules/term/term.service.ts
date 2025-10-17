@@ -76,26 +76,27 @@ export class TermService {
       .take(limit);
 
     const rows = await idQuery.getRawMany<{ term_id: string }>();
-    const ids = rows.map((row) => Number(row.term_id));
+    const ids = rows.map((row) => BigInt(row.term_id));
 
     if (ids.length === 0) {
       return [];
     }
 
     const terms = await this.termRepo.find({
-      where: { id: In(ids) },
+      where: { id: In(ids.map((id) => id.toString())) },
       relations: ['programme', 'departments'],
       order: { startDate: 'DESC', id: 'DESC' },
     });
 
-    const orderMap = new Map<number, number>(
-      ids.map((id, index) => [id, index]),
+    const orderMap = new Map<string, number>(
+      ids.map((id, index) => [id.toString(), index]),
     );
 
     return terms
       .slice()
       .sort((a, b) =>
-        (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+        (orderMap.get(String(a.id)) ?? 0) -
+        (orderMap.get(String(b.id)) ?? 0),
       );
   }
 
@@ -122,7 +123,6 @@ export class TermService {
 
     const entity = this.termRepo.create({
       programme,
-      programmeId: programme.id,
       code: dto.code,
       name: dto.name,
       academicYear: dto.academicYear ?? null,
@@ -156,7 +156,6 @@ export class TermService {
         throw new NotFoundException('Programme not found');
       }
       term.programme = programme;
-      term.programmeId = programme.id;
     }
 
     if (dto.code !== undefined) term.code = dto.code;

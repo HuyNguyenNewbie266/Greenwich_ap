@@ -52,19 +52,19 @@ export class TermController {
   @ApiQuery({ name: 'code', required: false, type: String })
   @ApiQuery({ name: 'name', required: false, type: String })
   findAll(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('programmeId') programmeId?: number,
-    @Query('departmentId') departmentId?: number,
+    @Query('page', new ParseIntPipe({ optional: true })) page?: number,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
+    @Query('programmeId', new ParseIntPipe({ optional: true })) programmeId?: number,
+    @Query('departmentId', new ParseIntPipe({ optional: true })) departmentId?: number,
     @Query('academicYear') academicYear?: string,
     @Query('code') code?: string,
     @Query('name') name?: string,
   ) {
     return this.svc.findAll({
-      page: page ? Number(page) : undefined,
-      limit: limit ? Number(limit) : undefined,
-      programmeId: programmeId ? Number(programmeId) : undefined,
-      departmentId: departmentId ? Number(departmentId) : undefined,
+      page: page ?? undefined,
+      limit: limit ?? undefined,
+      programmeId: programmeId ?? undefined,
+      departmentId: departmentId ?? undefined,
       academicYear: academicYear ?? undefined,
       code: code ?? undefined,
       name: name ?? undefined,
