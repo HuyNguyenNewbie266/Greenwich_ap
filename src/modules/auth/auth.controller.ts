@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { GoogleUserDto } from './dto/google-user.dto';
 import { LoginResponseDto, RefreshResponseDto } from './dto/login-response.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -77,7 +77,13 @@ export class AuthController {
   }
 
   @Post('exchange')
-  async exchangeCode(@Body() body: { code: string }, @Res() res: Response) {
+  async exchangeCode(
+    @Body() body: { code: string },
+    @Res() res: Response,
+    @Res() req: Request,
+  ) {
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Allow-Origin', req.headers.origin);
     const userData = this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
