@@ -14,7 +14,10 @@ async function bootstrap() {
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'OPTIONS') {
-      res.header('Access-Control-Allow-Origin', req.headers.origin);
+      res.header(
+        'Access-Control-Allow-Origin',
+        process.env.FRONTEND_URL || 'http://localhost:5173',
+      );
       res.header(
         'Access-Control-Allow-Methods',
         'GET, POST, PUT, DELETE, PATCH, OPTIONS',

@@ -92,10 +92,6 @@ export class AuthController {
         process.env.NODE_ENV === 'production'
           ? ('none' as const)
           : ('lax' as const),
-      domain:
-        process.env.NODE_ENV === 'production'
-          ? process.env.COOKIE_DOMAIN
-          : 'localhost',
     };
 
     res.cookie('access_token', tokens.accessToken, {
