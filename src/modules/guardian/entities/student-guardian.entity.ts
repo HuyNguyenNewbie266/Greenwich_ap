@@ -5,7 +5,6 @@ import {
   ManyToOne,
   JoinColumn,
   Unique,
-  Index,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Student } from '../../student/entities/student.entity';
