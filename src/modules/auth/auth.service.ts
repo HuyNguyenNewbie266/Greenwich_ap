@@ -7,7 +7,9 @@ import { JwtPayload } from './types/jwt-payload.type';
 import { User } from '../user/entities/user.entity';
 import bcrypt from 'bcrypt';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { Staff } from '../staff/entities/staff.entity';
 import { randomBytes, randomUUID } from 'crypto';
+import { StaffService } from '../staff/staff.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +21,7 @@ export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly staffService: StaffService,
   ) {}
 
   async handleGoogleLogin(profile: GoogleUserDto): Promise<LoginResponseDto> {
@@ -49,10 +52,11 @@ export class AuthService {
       throw new UnauthorizedException('Google login failed');
     }
   }
-
-  async validateUserByJwt(payload: JwtPayload): Promise<User> {
+  async validateUserByJwt(
+    payload: JwtPayload,
+  ): Promise<User & { staff?: Staff }> {
     try {
-      const user = await this.userService.findOne(Number(payload.sub));
+      const user = await this.userService.findOne(parseInt(payload.sub));
 
       if (!user) {
         throw new UnauthorizedException('User not found');
@@ -62,6 +66,17 @@ export class AuthService {
         throw new UnauthorizedException('User role not found');
       }
 
+      // If user is staff, load their staff record with role
+      if (user.role.name.toUpperCase() === 'STAFF') {
+        const staff = await this.staffService.findByUserId(user.id);
+
+        if (staff) {
+          // Attach staff data to user object
+          (user as User & { staff?: Staff }).staff = staff;
+        }
+      }
+
+      return user;
       return user;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
