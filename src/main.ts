@@ -5,32 +5,11 @@ import compression from 'compression';
 import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger.config';
 import cookieParser from 'cookie-parser';
-import { Request, Response, NextFunction } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
-
-  app.use((req: Request, res: Response, next: NextFunction) => {
-    if (req.method === 'OPTIONS') {
-      res.header(
-        'Access-Control-Allow-Origin',
-        process.env.FRONTEND_URL || 'http://localhost:5173',
-      );
-      res.header(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      );
-      res.header(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, Accept',
-      );
-      res.header('Access-Control-Allow-Credentials', 'true');
-      return res.sendStatus(200);
-    }
-    next();
-  });
 
   // CORS
   app.enableCors({
@@ -39,9 +18,6 @@ async function bootstrap() {
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    preflightContinue: false,
-    optionsSuccessStatus: 200,
   });
 
   // Security
@@ -49,7 +25,7 @@ async function bootstrap() {
     helmet({
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
-      crossOriginResourcePolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
       crossOriginOpenerPolicy: false,
       frameguard: false,
     }),
