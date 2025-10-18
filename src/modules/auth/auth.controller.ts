@@ -77,13 +77,7 @@ export class AuthController {
   }
 
   @Post('exchange')
-  async exchangeCode(
-    @Body() body: { code: string },
-    @Res() res: Response,
-    @Res() req: Request,
-  ) {
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Access-Control-Allow-Origin', req.headers.origin);
+  async exchangeCode(@Body() body: { code: string }, @Res() res: Response) {
     const userData = this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');

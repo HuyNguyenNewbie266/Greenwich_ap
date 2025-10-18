@@ -47,6 +47,8 @@ async function bootstrap() {
       contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
       crossOriginResourcePolicy: false,
+      crossOriginOpenerPolicy: false,
+      frameguard: false,
     }),
   );
 
