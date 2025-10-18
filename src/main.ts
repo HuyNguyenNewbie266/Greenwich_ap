@@ -4,9 +4,12 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { AppModule } from './app.module';
 import { setupSwagger } from './config/swagger.config';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
 
   // CORS
   app.enableCors({
@@ -23,23 +26,9 @@ async function bootstrap() {
   // Security
   app.use(
     helmet({
-      contentSecurityPolicy:
-        process.env.NODE_ENV === 'production'
-          ? {
-              useDefaults: true,
-              directives: {
-                ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-                'script-src': [
-                  "'self'",
-                  "'unsafe-inline'",
-                  "'unsafe-eval'",
-                  'https://cdnjs.cloudflare.com',
-                ],
-              },
-            }
-          : false,
+      contentSecurityPolicy: false,
       crossOriginEmbedderPolicy: false,
-      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginResourcePolicy: false,
     }),
   );
 
