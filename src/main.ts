@@ -19,8 +19,9 @@ async function bootstrap() {
                 ...helmet.contentSecurityPolicy.getDefaultDirectives(),
                 'script-src': [
                   "'self'",
-                  'https://cdnjs.cloudflare.com',
                   "'unsafe-inline'",
+                  "'unsafe-eval'",
+                  'https://cdnjs.cloudflare.com',
                 ],
               },
             }
