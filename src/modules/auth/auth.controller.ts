@@ -77,33 +77,13 @@ export class AuthController {
   }
 
   @Post('exchange')
-  async exchangeCode(@Body() body: { code: string }, @Res() res: Response) {
+  async exchangeCode(@Body() body: { code: string }) {
     const userData = this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
     }
 
-    const tokens = await this.authService.handleGoogleLogin(userData);
-
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite:
-        process.env.NODE_ENV === 'production'
-          ? ('none' as const)
-          : ('lax' as const),
-    };
-
-    res.cookie('access_token', tokens.accessToken, {
-      ...cookieOptions,
-      maxAge: 15 * 60 * 1000,
-    });
-    res.cookie('refresh_token', tokens.refreshToken, {
-      ...cookieOptions,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
-    return res.json({ success: true });
+    return await this.authService.handleGoogleLogin(userData);
   }
 
   @Get('me')
