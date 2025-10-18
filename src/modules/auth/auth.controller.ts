@@ -88,8 +88,14 @@ export class AuthController {
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none' as const,
-      domain: process.env.COOKIE_DOMAIN || 'localhost',
+      sameSite:
+        process.env.NODE_ENV === 'production'
+          ? ('none' as const)
+          : ('lax' as const),
+      domain:
+        process.env.NODE_ENV === 'production'
+          ? process.env.COOKIE_DOMAIN
+          : 'localhost',
     };
 
     res.cookie('access_token', tokens.accessToken, {
