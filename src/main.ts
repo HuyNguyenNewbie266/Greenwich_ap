@@ -12,7 +12,21 @@ async function bootstrap() {
   app.use(
     helmet({
       contentSecurityPolicy:
-        process.env.NODE_ENV === 'production' ? undefined : false,
+        process.env.NODE_ENV === 'production'
+          ? {
+              useDefaults: true,
+              directives: {
+                ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+                'script-src': [
+                  "'self'",
+                  "'unsafe-inline'",
+                  "'unsafe-eval'",
+                  'https://cdnjs.cloudflare.com',
+                ],
+              },
+            }
+          : false,
+      crossOriginEmbedderPolicy: false,
     }),
   );
 

@@ -31,7 +31,7 @@ export class StudentService {
       let user: User;
 
       // If not having userID, add new user
-      if (!dto.userId || dto.userId === 0) {
+      if (!dto.userId) {
         if (!dto.email) throw new BadRequestException('Email is required');
 
         // Check existing email
