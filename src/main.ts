@@ -39,6 +39,7 @@ async function bootstrap() {
             }
           : false,
       crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
 
