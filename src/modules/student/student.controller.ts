@@ -18,7 +18,7 @@ import {
   ApiDeactivateOperation,
   ApiStudentFilterQuery,
 } from '../../common/decorators/swagger.decorator';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -69,12 +69,7 @@ export class StudentController {
 
   // UPDATE
   @Patch(':id')
-  @ApiOperation({ summary: 'Update student details' })
-  @ApiResponse({
-    status: 200,
-    description: 'Student updated successfully',
-    type: Student,
-  })
+  @ApiUpdateOperation(Student, 'Update student details')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStudentDto) {
     return this.studentService.update(id, dto);
   }
