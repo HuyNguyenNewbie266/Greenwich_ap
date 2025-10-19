@@ -24,12 +24,11 @@ import { GuardianResponseDto } from './dto/guardian-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { ApiBearerAuth } from '@nestjs/swagger';
-@ApiController('Guardians')
+import { UserRole } from '../../common/enums/roles.enum';
+@ApiController('Guardians', { requireAuth: true })
 @Controller('guardians')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('admin')
-@ApiBearerAuth('access-token')
+@Roles(UserRole.ADMIN)
 export class GuardianController {
   constructor(private readonly guardianService: GuardianService) {}
 
