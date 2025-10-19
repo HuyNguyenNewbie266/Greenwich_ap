@@ -27,7 +27,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { StudentScheduleResponseDto } from './dto/student-schedule-response.dto';
-import { StaffRole, UserRole } from '../../common/enums/roles.enums';
+import { StaffRole, UserRole } from '../../common/enums/roles.enum';
 import { StaffRolesGuard } from '../auth/guards/staff-roles.guard';
 import { StaffRoles } from '../../common/decorators/staff-roles.decorator';
 

@@ -9,7 +9,7 @@ import { Request } from 'express';
 import { STAFF_ROLES_KEY } from '../../../common/decorators/staff-roles.decorator';
 import { User } from '../../user/entities/user.entity';
 import { Staff } from '../../staff/entities/staff.entity';
-import { StaffRole } from '../../../common/enums/roles.enums';
+import { StaffRole } from '../../../common/enums/roles.enum';
 
 // Define a type for User with staff attached
 type UserWithStaff = User & { staff?: Staff };

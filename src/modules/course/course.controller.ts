@@ -27,7 +27,7 @@ import { Course } from './entities/course.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { StaffRole, UserRole } from '../../common/enums/roles.enums';
+import { StaffRole, UserRole } from '../../common/enums/roles.enum';
 import { StaffRoles } from '../../common/decorators/staff-roles.decorator';
 
 @ApiController('Courses', { requireAuth: true })

@@ -28,7 +28,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CreateClassSessionDto } from './dto/create-class-session.dto';
 import { UpdateClassSessionDto } from './dto/update-class-session.dto';
-import { UserRole } from '../../common/enums/roles.enums';
+import { UserRole } from '../../common/enums/roles.enum';
 
 @ApiController('Classes', { requireAuth: true })
 @Controller('classes')
