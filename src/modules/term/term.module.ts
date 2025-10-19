@@ -12,8 +12,4 @@ import { Department } from '../department/entities/department.entity';
   providers: [TermService],
   exports: [TermService],
 })
-<<<<<<< HEAD
 export class TermModule {}
-=======
-export class TermModule {}
->>>>>>> 2a67927 (TermCRUD)

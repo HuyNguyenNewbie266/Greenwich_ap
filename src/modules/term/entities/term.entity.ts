@@ -10,32 +10,24 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
-<<<<<<< HEAD
-=======
   RelationId,
->>>>>>> 2a67927 (TermCRUD)
 } from 'typeorm';
 import { Programme } from '../../programme/entities/programme.entity';
 import { Department } from '../../department/entities/department.entity';
 
-<<<<<<< HEAD
-@Unique(['programme', 'code'])
-=======
 @Unique('UQ_term_programme_code', ['programme', 'code'])
->>>>>>> 2a67927 (TermCRUD)
 @Entity({ name: 'term' })
 export class Term {
   @ApiProperty()
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
-<<<<<<< HEAD
-  @ApiProperty({ description: 'Programme identifier', type: Number })
-  @Column({ name: 'programme_id', type: 'bigint' })
-=======
-  @ApiProperty({ description: 'Programme identifier', type: Number, readOnly: true })
+  @ApiProperty({
+    description: 'Programme identifier',
+    type: Number,
+    readOnly: true,
+  })
   @RelationId((term: Term) => term.programme)
->>>>>>> 2a67927 (TermCRUD)
   programmeId!: number;
 
   @ApiProperty({ type: () => Programme })
