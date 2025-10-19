@@ -215,11 +215,21 @@ export class TermService {
     return departments;
   }
 
-  private handleUniqueViolation(error: any, message: string): never | void {
-    // Postgres unique violation code
-    const code = error?.code ?? error?.driverError?.code;
-    if (code === '23505') {
-      throw new ConflictException(message);
+  private handleUniqueViolation(error: unknown, message: string): void {
+    if (typeof error === 'object' && error !== null) {
+      const pgError = error as {
+        code?: string;
+        driverError?: {
+          code?: string;
+        };
+      };
+
+      const code: string | undefined =
+        pgError.code ?? pgError.driverError?.code;
+
+      if (code === '23505') {
+        throw new ConflictException(message);
+      }
     }
   }
 }
