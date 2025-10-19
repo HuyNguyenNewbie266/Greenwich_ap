@@ -98,19 +98,18 @@ export class TermService {
     return terms
       .slice()
       .sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
-    }
+  }
 
-    async findOne(id: number) {
-      const term = await this.termRepo.findOne({
-        where: { id },
-        relations: ['programme', 'departments'],
-      });
-      if (!term) {
-        throw new NotFoundException(`Term ${id} not found`);
-      }
-      return term;
+  async findOne(id: number) {
+    const term = await this.termRepo.findOne({
+      where: { id },
+      relations: ['programme', 'departments'],
+    });
+    if (!term) {
+      throw new NotFoundException(`Term ${id} not found`);
     }
-    
+    return term;
+  }
 
   async create(dto: CreateTermDto) {
     const programme = await this.programmeRepo.findOne({
@@ -142,9 +141,8 @@ export class TermService {
         'A term with the same (programme_id, code) already exists.',
       );
       throw error;
-    } 
+    }
   }
-
 
   async update(id: number, dto: UpdateTermDto) {
     const term = await this.termRepo.findOne({
@@ -218,7 +216,6 @@ export class TermService {
   }
 
   private handleUniqueViolation(error: any, message: string): never | void {
-    // Postgres unique violation code
     const code = error?.code ?? error?.driverError?.code;
     if (code === '23505') {
       throw new ConflictException(message);
