@@ -33,25 +33,25 @@ export class GuardianController {
   constructor(private readonly guardianService: GuardianService) {}
 
   @Post()
-  @ApiCreateOperation(GuardianResponseDto)
+  @ApiCreateOperation(GuardianResponseDto, 'Create a new guardian')
   create(@Body() dto: CreateGuardianDto) {
     return this.guardianService.create(dto);
   }
 
   @Get()
-  @ApiFindAllOperation(GuardianResponseDto)
+  @ApiFindAllOperation(GuardianResponseDto, 'Get all guardians')
   findAll() {
     return this.guardianService.findAll();
   }
 
   @Get(':id')
-  @ApiFindOneOperation(GuardianResponseDto)
+  @ApiFindOneOperation(GuardianResponseDto, 'Get a guardian by ID')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.guardianService.findOne(id);
   }
 
   @Patch(':id')
-  @ApiUpdateOperation(GuardianResponseDto)
+  @ApiUpdateOperation(GuardianResponseDto, 'Update a guardian by ID')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateGuardianDto,
@@ -60,7 +60,7 @@ export class GuardianController {
   }
 
   @Delete(':id')
-  @ApiDeleteOperation(GuardianResponseDto)
+  @ApiDeleteOperation(GuardianResponseDto, 'Delete a guardian by ID')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.guardianService.remove(id);
   }
