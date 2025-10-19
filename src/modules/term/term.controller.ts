@@ -27,7 +27,7 @@ import { TermService } from './term.service';
 import { CreateTermDto } from './dto/create-term.dto';
 import { UpdateTermDto } from './dto/update-term.dto';
 import { Term } from './entities/term.entity';
-
+import { UserRole } from '../../common/enums/roles.enum';
 @ApiController('Terms')
 @Controller('terms')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,14 +36,14 @@ export class TermController {
   constructor(private readonly svc: TermService) {}
 
   @Post()
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiCreateOperation(Term)
   create(@Body() dto: CreateTermDto) {
     return this.svc.create(dto);
   }
 
   @Get()
-  @Roles('admin', 'guardian', 'teacher', 'student')
+  @Roles(UserRole.ADMIN, UserRole.GUARDIAN, UserRole.STAFF, UserRole.STUDENT)
   @ApiFindAllOperation(Term)
   @ApiPaginationQuery()
   @ApiQuery({ name: 'programmeId', required: false, type: Number })
@@ -74,21 +74,21 @@ export class TermController {
   }
 
   @Get(':id')
-  @Roles('admin', 'guardian', 'teacher', 'student')
+  @Roles(UserRole.ADMIN, UserRole.GUARDIAN, UserRole.STAFF, UserRole.STUDENT)
   @ApiFindOneOperation(Term)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.svc.findOne(id);
   }
 
   @Patch(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiUpdateOperation(Term)
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateTermDto) {
     return this.svc.update(id, dto);
   }
 
   @Delete(':id')
-  @Roles('admin')
+  @Roles(UserRole.ADMIN)
   @ApiDeleteOperation(Term)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.svc.remove(id);
