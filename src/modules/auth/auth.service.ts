@@ -77,7 +77,6 @@ export class AuthService {
       }
 
       return user;
-      return user;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
