@@ -93,4 +93,8 @@ export class TermController {
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.svc.remove(id);
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2a67927 (TermCRUD)

@@ -23,6 +23,11 @@ interface FindAllOptions {
 
 @Injectable()
 export class TermService {
+<<<<<<< HEAD
+=======
+  private readonly DEFAULT_LIMIT = 25;
+  private readonly MAX_LIMIT = 100;
+>>>>>>> 2a67927 (TermCRUD)
   constructor(
     @InjectRepository(Term)
     private readonly termRepo: Repository<Term>,
@@ -34,7 +39,13 @@ export class TermService {
 
   async findAll(opts: FindAllOptions = {}) {
     const page = opts.page && opts.page > 0 ? opts.page : 1;
+<<<<<<< HEAD
     const limit = opts.limit && opts.limit > 0 ? opts.limit : 25;
+=======
+    const requestedLimit =
+      opts.limit && opts.limit > 0 ? opts.limit : this.DEFAULT_LIMIT;
+    const limit = Math.min(requestedLimit, this.MAX_LIMIT);
+>>>>>>> 2a67927 (TermCRUD)
 
     const baseQuery = this.termRepo
       .createQueryBuilder('term')
@@ -94,6 +105,7 @@ export class TermService {
     return terms
       .slice()
       .sort((a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0));
+<<<<<<< HEAD
   }
 
   async findOne(id: number) {
@@ -106,6 +118,21 @@ export class TermService {
     }
     return term;
   }
+=======
+    }
+
+    async findOne(id: number) {
+      const term = await this.termRepo.findOne({
+        where: { id },
+        relations: ['programme', 'departments'],
+      });
+      if (!term) {
+        throw new NotFoundException(`Term ${id} not found`);
+      }
+      return term;
+    }
+    
+>>>>>>> 2a67927 (TermCRUD)
 
   async create(dto: CreateTermDto) {
     const programme = await this.programmeRepo.findOne({
@@ -131,6 +158,7 @@ export class TermService {
     try {
       const saved = await this.termRepo.save(entity);
       return this.findOne(saved.id);
+<<<<<<< HEAD
     } catch (error: unknown) {
       if (
         typeof error === 'object' &&
@@ -146,6 +174,18 @@ export class TermService {
     }
   }
 
+=======
+    } catch (error) {
+      this.handleUniqueViolation(
+        error,
+        'A term with the same (programme_id, code) already exists.',
+      );
+      throw error;
+    } 
+  }
+
+
+>>>>>>> 2a67927 (TermCRUD)
   async update(id: number, dto: UpdateTermDto) {
     const term = await this.termRepo.findOne({
       where: { id },
@@ -180,6 +220,7 @@ export class TermService {
     try {
       const saved = await this.termRepo.save(term);
       return this.findOne(saved.id);
+<<<<<<< HEAD
     } catch (error: unknown) {
       if (
         typeof error === 'object' &&
@@ -192,6 +233,14 @@ export class TermService {
         );
       }
       throw error;
+=======
+    } catch (error) {
+      this.handleUniqueViolation(
+        error,
+        'A term with the same (programme_id, code) already exists.',
+      );
+      throw error; // fallback
+>>>>>>> 2a67927 (TermCRUD)
     }
   }
 
@@ -222,4 +271,16 @@ export class TermService {
 
     return departments;
   }
+<<<<<<< HEAD
 }
+=======
+
+  private handleUniqueViolation(error: any, message: string): never | void {
+    // Postgres unique violation code
+    const code = error?.code ?? error?.driverError?.code;
+    if (code === '23505') {
+      throw new ConflictException(message);
+    }
+  }
+}
+>>>>>>> 2a67927 (TermCRUD)

@@ -26,4 +26,8 @@ export class Programme {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt!: Date;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2a67927 (TermCRUD)

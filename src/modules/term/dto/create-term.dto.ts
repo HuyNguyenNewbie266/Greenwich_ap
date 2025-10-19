@@ -52,4 +52,8 @@ export class CreateTermDto {
   @ArrayUnique()
   @IsNumber({}, { each: true })
   departmentIds?: number[];
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 2a67927 (TermCRUD)

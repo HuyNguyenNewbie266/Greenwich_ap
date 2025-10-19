@@ -17,6 +17,10 @@ import { TimeSlotModule } from './modules/time-slot/time-slot.module';
 import { HealthController } from './health/health.controller';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { GuardianModule } from './modules/guardian/guardian.module';
+<<<<<<< HEAD
+=======
+import { StaffModule } from './modules/staff/staff.module';
+>>>>>>> 2a67927 (TermCRUD)
 import { TermModule } from './modules/term/term.module';
 @Module({
   imports: [
@@ -45,6 +49,10 @@ import { TermModule } from './modules/term/term.module';
     TimeSlotModule,
     AttendanceModule,
     GuardianModule,
+<<<<<<< HEAD
+=======
+    StaffModule,
+>>>>>>> 2a67927 (TermCRUD)
     TermModule,
   ],
   controllers: [HealthController],
