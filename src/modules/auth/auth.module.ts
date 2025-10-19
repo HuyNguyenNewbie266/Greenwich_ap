@@ -12,6 +12,7 @@ import { User } from '../user/entities/user.entity';
 import { Role } from '../user/entities/role.entity';
 import { Campus } from '../user/entities/campus.entity';
 import { RolesGuard } from './guards/roles.guard';
+import { StaffModule } from '../staff/staff.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RolesGuard } from './guards/roles.guard';
     }),
     TypeOrmModule.forFeature([User, Role, Campus]),
     UserModule,
+    StaffModule,
   ],
   controllers: [AuthController],
   providers: [

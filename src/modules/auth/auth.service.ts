@@ -7,13 +7,21 @@ import { JwtPayload } from './types/jwt-payload.type';
 import { User } from '../user/entities/user.entity';
 import bcrypt from 'bcrypt';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { randomBytes } from 'crypto';
+import { Staff } from '../staff/entities/staff.entity';
+import { randomBytes, randomUUID } from 'crypto';
+import { StaffService } from '../staff/staff.service';
 
 @Injectable()
 export class AuthService {
+  private tempCodes = new Map<
+    string,
+    { data: GoogleUserDto; expiresAt: number }
+  >();
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
+    private readonly staffService: StaffService,
   ) {}
 
   async handleGoogleLogin(profile: GoogleUserDto): Promise<LoginResponseDto> {
@@ -44,10 +52,11 @@ export class AuthService {
       throw new UnauthorizedException('Google login failed');
     }
   }
-
-  async validateUserByJwt(payload: JwtPayload): Promise<User> {
+  async validateUserByJwt(
+    payload: JwtPayload,
+  ): Promise<User & { staff?: Staff }> {
     try {
-      const user = await this.userService.findOne(Number(payload.sub));
+      const user = await this.userService.findOne(parseInt(payload.sub));
 
       if (!user) {
         throw new UnauthorizedException('User not found');
@@ -55,6 +64,16 @@ export class AuthService {
 
       if (!user.role) {
         throw new UnauthorizedException('User role not found');
+      }
+
+      // If user is staff, load their staff record with role
+      if (user.role.name.toUpperCase() === 'STAFF') {
+        const staff = await this.staffService.findByUserId(user.id);
+
+        if (staff) {
+          // Attach staff data to user object
+          (user as User & { staff?: Staff }).staff = staff;
+        }
       }
 
       return user;
@@ -201,5 +220,25 @@ export class AuthService {
     } catch (err: unknown) {
       console.error('Error during logout token cleanup:', err);
     }
+  }
+
+  createAuthCode(user: GoogleUserDto): string {
+    const code = randomUUID();
+    const expiresAt = Date.now() + 60 * 1000; // 1 minute expiry
+    this.tempCodes.set(code, { data: user, expiresAt });
+    return code;
+  }
+
+  verifyAuthCode(code: string): GoogleUserDto | null {
+    const entry = this.tempCodes.get(code);
+    if (!entry) return null;
+
+    if (Date.now() > entry.expiresAt) {
+      this.tempCodes.delete(code);
+      return null;
+    }
+
+    this.tempCodes.delete(code); // one-time use
+    return entry.data;
   }
 }

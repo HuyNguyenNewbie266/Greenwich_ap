@@ -19,6 +19,7 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { GuardianModule } from './modules/guardian/guardian.module';
 import { StaffModule } from './modules/staff/staff.module';
 import { TermModule } from './modules/term/term.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({

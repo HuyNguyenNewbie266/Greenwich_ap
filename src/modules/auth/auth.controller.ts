@@ -5,10 +5,11 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { GoogleUserDto } from './dto/google-user.dto';
 import { LoginResponseDto, RefreshResponseDto } from './dto/login-response.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -65,24 +66,24 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Handle Google OAuth callback' })
   @CommonApiResponses()
-  async googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
+  googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
     if (!req.user || !req.user.email) {
       throw new Error('Google authentication failed');
     }
-    const tokens = await this.authService.handleGoogleLogin(req.user);
+    const authCode = this.authService.createAuthCode(req.user);
 
-    res.cookie('access_token', tokens.accessToken, {
-      httpOnly: true,
-      secure: true,
-    });
-    res.cookie('refresh_token', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-    });
-    // Redirect back to frontend
-    // return res.redirect('http://localhost:5173/');
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth/bridge?code=${authCode}`;
+    return res.redirect(redirectUrl);
+  }
 
-    return res.json(tokens);
+  @Post('exchange')
+  async exchangeCode(@Body() body: { code: string }) {
+    const userData = this.authService.verifyAuthCode(body.code);
+    if (!userData) {
+      throw new UnauthorizedException('Invalid or expired code');
+    }
+
+    return await this.authService.handleGoogleLogin(userData);
   }
 
   @Get('me')
