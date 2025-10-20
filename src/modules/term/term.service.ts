@@ -79,7 +79,7 @@ export class TermService {
       .skip((page - 1) * limit)
       .take(limit);
 
-    const rows = await idQuery.getRawMany<{ term_id: string }>();
+    const rows = await idQuery.getRawMany<{ term_id: bigint }>();
     const ids = rows.map((row) => Number(row.term_id));
 
     if (ids.length === 0) {
@@ -205,8 +205,8 @@ export class TermService {
     });
 
     if (departments.length !== ids.length) {
-      const foundIds = new Set(departments.map((dept) => Number(dept.id)));
-      const missing = ids.filter((id) => !foundIds.has(Number(id)));
+      const foundIds = new Set(departments.map((dept) => dept.id));
+      const missing = ids.filter((id) => !foundIds.has(id));
       throw new NotFoundException(
         `Departments not found: ${missing.map((id) => `#${id}`).join(', ')}`,
       );
