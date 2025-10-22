@@ -191,9 +191,7 @@ export class AuthService {
         }
       }
     } else if (userRole === 'STUDENT') {
-      const student = user.student
-        ? user.student
-        : await this.studentService.findByUserId(user.id);
+      const student = user.student ?? await this.studentService.findByUserId(user.id);
       if (student) {
         payload.code = student.studentCode;
       }
