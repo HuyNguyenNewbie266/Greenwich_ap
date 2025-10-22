@@ -173,12 +173,12 @@ export class TermService {
     ];
     const cleanedPartial: Partial<UpdateTermDto> = {};
     for (const key of updatableFields) {
-      const value = (dto as any)[key];
+      const value = dto[key];
       if (value !== undefined) {
-        (cleanedPartial as any)[key] = value;
+        cleanedPartial[key] = value;
       }
     }
-    this.termRepo.merge(term, cleanedPartial as any);
+    this.termRepo.merge(term, cleanedPartial as DeepPartial<Term>);
 
     if (dto.departmentIds !== undefined) {
       const departments = await this.loadDepartments(dto.departmentIds);
