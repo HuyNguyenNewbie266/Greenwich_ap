@@ -8,8 +8,10 @@ import { User } from '../user/entities/user.entity';
 import bcrypt from 'bcrypt';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Staff } from '../staff/entities/staff.entity';
+import { Student } from '../student/entities/student.entity';
 import { randomBytes, randomUUID } from 'crypto';
 import { StaffService } from '../staff/staff.service';
+import { StudentService } from '../student/student.service';
 
 @Injectable()
 export class AuthService {
@@ -22,11 +24,12 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly staffService: StaffService,
+    private readonly studentService: StudentService,
   ) {}
 
   async handleGoogleLogin(profile: GoogleUserDto): Promise<LoginResponseDto> {
     try {
-      const user: User | null = await this.userService.findByEmail(
+      const user = await this.userService.findByEmailWithRoleData(
         profile.email,
       );
 
@@ -34,7 +37,7 @@ export class AuthService {
         throw new UnauthorizedException('Unable to login');
       }
 
-      const tokens = this.generateTokens(user);
+      const tokens = await this.generateTokens(user);
       await this.userService.updateRefreshToken(
         user.id,
         tokens.refreshToken,
@@ -54,9 +57,11 @@ export class AuthService {
   }
   async validateUserByJwt(
     payload: JwtPayload,
-  ): Promise<User & { staff?: Staff }> {
+  ): Promise<User & { staff?: Staff; student?: Student }> {
     try {
-      const user = await this.userService.findOne(parseInt(payload.sub));
+      const user = await this.userService.findOneWithRoleData(
+        parseInt(payload.sub),
+      );
 
       if (!user) {
         throw new UnauthorizedException('User not found');
@@ -64,16 +69,6 @@ export class AuthService {
 
       if (!user.role) {
         throw new UnauthorizedException('User role not found');
-      }
-
-      // If user is staff, load their staff record with role
-      if (user.role.name.toUpperCase() === 'STAFF') {
-        const staff = await this.staffService.findByUserId(user.id);
-
-        if (staff) {
-          // Attach staff data to user object
-          (user as User & { staff?: Staff }).staff = staff;
-        }
       }
 
       return user;
@@ -87,7 +82,7 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<LoginResponseDto> {
     try {
-      const user = await this.userService.findByEmail(email);
+      const user = await this.userService.findByEmailWithRoleData(email);
       if (!user) {
         throw new UnauthorizedException('Invalid email or password');
       }
@@ -102,7 +97,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid email or password');
       }
 
-      const tokens = this.generateTokens(user);
+      const tokens = await this.generateTokens(user);
       await this.userService.updateRefreshToken(
         user.id,
         tokens.refreshToken,
@@ -130,8 +125,9 @@ export class AuthService {
     try {
       const { refreshToken } = refreshTokenDto;
 
-      // Find user with the refresh token
-      const user = await this.userService.findByRefreshToken(refreshToken);
+      // Find user with the refresh token and preload role-specific data
+      const user =
+        await this.userService.findByRefreshTokenWithRoleData(refreshToken);
 
       if (!user) {
         throw new UnauthorizedException('Invalid refresh token');
@@ -148,7 +144,7 @@ export class AuthService {
       }
 
       // Generate new tokens
-      const tokens = this.generateTokens(user);
+      const tokens = await this.generateTokens(user);
 
       // Store new refresh token
       await this.userService.updateRefreshToken(
@@ -169,15 +165,39 @@ export class AuthService {
     }
   }
 
-  private generateTokens(user: User): {
+  private async generateTokens(
+    user: User & { staff?: Staff; student?: Student },
+  ): Promise<{
     accessToken: string;
     refreshToken: string;
-  } {
+  }> {
     const payload: JwtPayload = {
       sub: user.id.toString(),
       email: user.email,
       role: user.role?.name ?? null,
     };
+
+    if (user.surname) payload.surname = user.surname;
+    if (user.givenName) payload.givenName = user.givenName;
+    if (user.avatar) payload.avatar = user.avatar;
+
+    const userRole = user.role?.name.toUpperCase();
+    if (userRole === 'STAFF') {
+      const staff =
+        user.staff ?? (await this.staffService.findByUserId(user.id));
+      if (staff) {
+        payload.code = staff.staffCode;
+        if (staff.role?.role) {
+          payload.staffRole = staff.role.role;
+        }
+      }
+    } else if (userRole === 'STUDENT') {
+      const student =
+        user.student ?? (await this.studentService.findByUserId(user.id));
+      if (student) {
+        payload.code = student.studentCode;
+      }
+    }
 
     const accessToken = this.jwtService.sign(payload, {
       expiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m',
