@@ -62,6 +62,14 @@ class StudentDto {
   @ApiProperty()
   @Expose()
   studentCode: string;
+
+  @ApiProperty()
+  @Expose()
+  faculty: string;
+
+  @ApiProperty()
+  @Expose()
+  academicYear: string;
 }
 
 export class MeResponseDto {
