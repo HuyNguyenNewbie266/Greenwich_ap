@@ -183,7 +183,8 @@ export class AuthService {
 
     const userRole = user.role?.name.toUpperCase();
     if (userRole === 'STAFF') {
-      const staff = user.staff ?? await this.staffService.findByUserId(user.id);
+      const staff =
+        user.staff ?? (await this.staffService.findByUserId(user.id));
       if (staff) {
         payload.code = staff.staffCode;
         if (staff.role?.role) {
@@ -191,7 +192,8 @@ export class AuthService {
         }
       }
     } else if (userRole === 'STUDENT') {
-      const student = user.student ?? await this.studentService.findByUserId(user.id);
+      const student =
+        user.student ?? (await this.studentService.findByUserId(user.id));
       if (student) {
         payload.code = student.studentCode;
       }
