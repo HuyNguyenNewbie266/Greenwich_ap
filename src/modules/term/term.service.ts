@@ -178,7 +178,7 @@ export class TermService {
         cleanedPartial[key] = value;
       }
     }
-    this.termRepo.merge(term, cleanedPartial as any);
+    this.termRepo.merge(term, cleanedPartial as DeepPartial<Term>);
 
     if (dto.departmentIds !== undefined) {
       const departments = await this.loadDepartments(dto.departmentIds);
