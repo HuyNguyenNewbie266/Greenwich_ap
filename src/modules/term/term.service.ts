@@ -164,11 +164,21 @@ export class TermService {
       term.programmeId = programme.id;
     }
 
-    if (dto.code !== undefined) term.code = dto.code;
-    if (dto.name !== undefined) term.name = dto.name;
-    if (dto.academicYear !== undefined) term.academicYear = dto.academicYear;
-    if (dto.startDate !== undefined) term.startDate = dto.startDate;
-    if (dto.endDate !== undefined) term.endDate = dto.endDate;
+    const updatableFields: (keyof UpdateTermDto)[] = [
+      'code',
+      'name',
+      'academicYear',
+      'startDate',
+      'endDate',
+    ];
+    const cleanedPartial: Partial<UpdateTermDto> = {};
+    for (const key of updatableFields) {
+      const value = (dto as any)[key];
+      if (value !== undefined) {
+        (cleanedPartial as any)[key] = value;
+      }
+    }
+    this.termRepo.merge(term, cleanedPartial as any);
 
     if (dto.departmentIds !== undefined) {
       const departments = await this.loadDepartments(dto.departmentIds);
