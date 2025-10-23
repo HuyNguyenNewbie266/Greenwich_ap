@@ -164,11 +164,13 @@ export class TermService {
       term.programmeId = programme.id;
     }
 
-    if (dto.code !== undefined) term.code = dto.code;
-    if (dto.name !== undefined) term.name = dto.name;
-    if (dto.academicYear !== undefined) term.academicYear = dto.academicYear;
-    if (dto.startDate !== undefined) term.startDate = dto.startDate;
-    if (dto.endDate !== undefined) term.endDate = dto.endDate;
+    this.termRepo.merge(term, {
+      code: dto.code,
+      name: dto.name,
+      academicYear: dto.academicYear,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+    });
 
     if (dto.departmentIds !== undefined) {
       const departments = await this.loadDepartments(dto.departmentIds);
