@@ -1,0 +1,17 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../",
+  "testRegex": ".*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "tsconfig": "tsconfig.json"
+      }
+    ]
+  },
+  "moduleNameMapper": {
+    "^@paralleldrive/cuid2$": "<rootDir>/test/__mocks__/cuid2.ts"
+  },
+  "testEnvironment": "node"
+}
