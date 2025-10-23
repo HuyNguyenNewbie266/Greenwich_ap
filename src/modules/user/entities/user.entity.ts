@@ -40,10 +40,6 @@ export class User {
   @Column({ length: 190, unique: true })
   email!: string;
 
-  @ApiProperty({ description: 'Hashed password', required: false })
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  password?: string | null;
-
   @ApiProperty({ required: false })
   @Column({ type: 'varchar', length: 30, nullable: true })
   phone?: string | null;

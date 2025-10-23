@@ -6,19 +6,25 @@ import {
   IsDateString,
   IsEnum,
   IsNumber,
+  MinLength,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class CreateAdminDto {
   @SwaggerProperty({
     description: 'Email address',
-    example: 'alice@example.com',
+    example: 'admin@example.com',
   })
   @IsEmail()
   email!: string;
 
-  @SwaggerProperty({ description: 'Role id (existing role)', example: 2 })
-  @IsNumber()
-  roleId!: number;
+  @SwaggerProperty({
+    description: 'Password for admin login (min 6 characters)',
+    example: 'SecurePassword123',
+    writeOnly: true,
+  })
+  @IsString()
+  @MinLength(6)
+  password!: string;
 
   @SwaggerProperty({ description: 'Campus id', required: false })
   @IsOptional()
@@ -78,13 +84,4 @@ export class CreateUserDto {
     'UNSPECIFIED' as const,
   ])
   gender?: 'MALE' | 'FEMALE' | 'OTHER' | 'UNSPECIFIED';
-
-  // --- Fields for Student ---
-  @IsOptional()
-  @IsString()
-  studentCode?: string;
-
-  @IsOptional()
-  @IsNumber()
-  mentorId?: number;
 }
