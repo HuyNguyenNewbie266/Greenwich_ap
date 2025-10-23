@@ -164,7 +164,13 @@ export class TermService {
       term.programmeId = programme.id;
     }
 
-    this.termRepo.merge(term, dto as DeepPartial<Term>);
+    this.termRepo.merge(term, {
+      code: dto.code,
+      name: dto.name,
+      academicYear: dto.academicYear,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+    });
 
     if (dto.departmentIds !== undefined) {
       const departments = await this.loadDepartments(dto.departmentIds);
