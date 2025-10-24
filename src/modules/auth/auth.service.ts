@@ -251,6 +251,7 @@ export class AuthService {
     const code = randomUUID();
     const expiresAt = Date.now() + 60 * 1000; // 1 minute expiry
     this.tempCodes.set(code, { data: user, expiresAt });
+    console.log(this.tempCodes);
     return code;
   }
 
