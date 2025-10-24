@@ -137,7 +137,7 @@ export class UserService {
     });
 
     if (!user) {
-      return null;
+      throw new NotFoundException('User not found by email');
     }
 
     return this.attachRoleSpecificData(user);
@@ -271,10 +271,14 @@ export class UserService {
     refreshToken: string,
     expiresAt: Date,
   ): Promise<void> {
-    await this.userRepo.update(userId, {
-      refreshToken,
-      refreshTokenExpiresAt: expiresAt,
-    });
+    try {
+      await this.userRepo.update(userId, {
+        refreshToken,
+        refreshTokenExpiresAt: expiresAt,
+      });
+    } catch (error) {
+      console.error('Error updating refresh token:', error);
+    }
   }
 
   async clearRefreshToken(userId: number): Promise<void> {

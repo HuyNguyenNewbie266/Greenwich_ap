@@ -43,6 +43,17 @@ export class ThreadController {
     return this.threadService.findAll();
   }
 
+  @Get('user/:userId')
+  @ApiFindAllOperation(
+    ThreadResponseDto,
+    'Retrieve all threads related to a user',
+  )
+  async findUserThreads(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<ThreadResponseDto[]> {
+    return this.threadService.findUserThreads(userId);
+  }
+
   @Get(':id')
   @ApiFindOneOperation(ThreadResponseDto, 'Retrieve a single thread by ID')
   async findOne(

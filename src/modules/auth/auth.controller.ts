@@ -68,24 +68,47 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Handle Google OAuth callback' })
   @CommonApiResponses()
-  googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
+  async googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
     if (!req.user || !req.user.email) {
       throw new Error('Google authentication failed');
     }
-    const authCode = this.authService.createAuthCode(req.user);
+    const authCode = await this.authService.createAuthCode(req.user);
 
     const redirectUrl = `${process.env.FRONTEND_URL}/auth/bridge?code=${authCode}`;
     return res.redirect(redirectUrl);
   }
 
   @Post('exchange')
-  async exchangeCode(@Body() body: { code: string }) {
-    const userData = this.authService.verifyAuthCode(body.code);
+  async exchangeCode(
+    @Body() body: { code: string },
+    @Res() res: Response,
+  ): Promise<{ message: string }> {
+    const userData = await this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
     }
 
-    return await this.authService.handleGoogleLogin(userData);
+    const tokens = await this.authService.handleGoogleLogin(userData);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      path: '/',
+    };
+
+    res.cookie('access_token', tokens.accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+    res.cookie('refresh_token', tokens.refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return {
+      message: 'Login successful, cookies set',
+    };
   }
 
   @Get('me')
@@ -135,12 +158,19 @@ export class AuthController {
     description: 'Logout successful',
   })
   @CommonApiResponses()
-  async logout(@Req() req: JwtAuthRequest): Promise<{ message: string }> {
+  async logout(
+    @Req() req: JwtAuthRequest,
+    @Res() res: Response,
+  ): Promise<{ message: string }> {
     if (!req.user) {
       throw new Error('No authenticated user found');
     }
 
     await this.authService.logout(req.user.id);
+
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+
     return { message: 'Logout successful' };
   }
 }
