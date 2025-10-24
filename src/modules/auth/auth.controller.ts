@@ -79,7 +79,10 @@ export class AuthController {
   }
 
   @Post('exchange')
-  async exchangeCode(@Body() body: { code: string }, @Res() res: Response) {
+  async exchangeCode(
+    @Body() body: { code: string },
+    @Res() res: Response,
+  ): Promise<{ message: string }> {
     const userData = this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
@@ -101,6 +104,10 @@ export class AuthController {
       ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
+
+    return {
+      message: 'Login successful, cookies set',
+    };
   }
 
   @Get('me')
