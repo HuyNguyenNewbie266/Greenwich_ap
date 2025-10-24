@@ -104,14 +104,14 @@ export class UserService {
    */
   async findOneWithRoleData(
     id: number,
-  ): Promise<(User & { staff?: Staff; student?: Student }) | null> {
+  ): Promise<User & { staff?: Staff; student?: Student }> {
     const user = await this.userRepo.findOne({
       where: { id },
       relations: ['role', 'campus'],
     });
 
     if (!user) {
-      return null;
+      throw new NotFoundException('User not found by ID');
     }
 
     return this.attachRoleSpecificData(user);
@@ -253,14 +253,14 @@ export class UserService {
 
   async findByRefreshTokenWithRoleData(
     refreshToken: string,
-  ): Promise<(User & { staff?: Staff; student?: Student }) | null> {
+  ): Promise<User & { staff?: Staff; student?: Student }> {
     const user = await this.userRepo.findOne({
       where: { refreshToken },
       relations: ['role', 'campus'],
     });
 
     if (!user) {
-      return null;
+      throw new NotFoundException('User not found by refresh token');
     }
 
     return this.attachRoleSpecificData(user);
