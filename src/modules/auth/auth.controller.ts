@@ -79,13 +79,28 @@ export class AuthController {
   }
 
   @Post('exchange')
-  async exchangeCode(@Body() body: { code: string }) {
+  async exchangeCode(@Body() body: { code: string }, @Res() res: Response) {
     const userData = this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
     }
 
-    return await this.authService.handleGoogleLogin(userData);
+    const tokens = await this.authService.handleGoogleLogin(userData);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+    };
+
+    res.cookie('access_token', tokens.accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+    res.cookie('refresh_token', tokens.refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
   }
 
   @Get('me')
@@ -135,12 +150,19 @@ export class AuthController {
     description: 'Logout successful',
   })
   @CommonApiResponses()
-  async logout(@Req() req: JwtAuthRequest): Promise<{ message: string }> {
+  async logout(
+    @Req() req: JwtAuthRequest,
+    @Res() res: Response,
+  ): Promise<{ message: string }> {
     if (!req.user) {
       throw new Error('No authenticated user found');
     }
 
     await this.authService.logout(req.user.id);
+
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+
     return { message: 'Logout successful' };
   }
 }
