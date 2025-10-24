@@ -12,6 +12,7 @@ import { Student } from '../student/entities/student.entity';
 import { randomBytes, randomUUID } from 'crypto';
 import { StaffService } from '../staff/staff.service';
 import { StudentService } from '../student/student.service';
+import { AdminService } from '../admin/admin.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan } from 'typeorm';
 import { TempAuthCode } from './entities/temp-auth-code.entity';
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly staffService: StaffService,
     private readonly studentService: StudentService,
+    private readonly adminService: AdminService,
     @InjectRepository(TempAuthCode)
     private readonly tempAuthCodeRepository: Repository<TempAuthCode>,
   ) {}
@@ -40,15 +42,11 @@ export class AuthService {
 
       const tokens = await this.generateTokens(user);
 
-      try {
-        await this.userService.updateRefreshToken(
-          user.id,
-          tokens.refreshToken,
-          this.getRefreshTokenExpiryDate(),
-        );
-      } catch (error) {
-        console.error('Error updating refresh token:', error);
-      }
+      await this.userService.updateRefreshToken(
+        user.id,
+        tokens.refreshToken,
+        this.getRefreshTokenExpiryDate(),
+      );
 
       return {
         accessToken: tokens.accessToken,
@@ -93,17 +91,27 @@ export class AuthService {
         throw new UnauthorizedException('Invalid email or password');
       }
 
-      if (!user.password) {
-        throw new UnauthorizedException('This account uses Google login only');
+      // Only Admin users can login with password
+      if (user.role?.name !== 'Admin') {
+        throw new UnauthorizedException(
+          'Non-admin accounts must use Google login',
+        );
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      // Get admin record with password
+      const admin = await this.adminService.findByUserId(user.id);
+      if (!admin) {
+        throw new UnauthorizedException('Admin account not found');
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, admin.password);
 
       if (!isPasswordValid) {
         throw new UnauthorizedException('Invalid email or password');
       }
 
       const tokens = await this.generateTokens(user);
+
       await this.userService.updateRefreshToken(
         user.id,
         tokens.refreshToken,
@@ -131,7 +139,7 @@ export class AuthService {
     try {
       const { refreshToken } = refreshTokenDto;
 
-      // Find user with the refresh token and preload role-specific data
+      // Find user with the refresh token (all users store refresh tokens in user_account)
       const user =
         await this.userService.findByRefreshTokenWithRoleData(refreshToken);
 
@@ -152,7 +160,7 @@ export class AuthService {
       // Generate new tokens
       const tokens = await this.generateTokens(user);
 
-      // Store new refresh token
+      // Store new refresh token in user_account
       await this.userService.updateRefreshToken(
         user.id,
         tokens.refreshToken,
@@ -237,11 +245,13 @@ export class AuthService {
   }
 
   async cleanupExpiredTokens(): Promise<void> {
+    // Clear expired refresh tokens for all users
     await this.userService.clearExpiredRefreshTokens();
   }
 
   async logout(userId: number): Promise<void> {
     try {
+      // Clear refresh token for all users (stored in user_account)
       await this.userService.clearRefreshToken(userId);
     } catch (err: unknown) {
       console.error('Error during logout token cleanup:', err);

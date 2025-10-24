@@ -5,6 +5,7 @@ import path from 'path';
 import { Campus } from '../../modules/user/entities/campus.entity';
 import { Role } from '../../modules/user/entities/role.entity';
 import { User } from '../../modules/user/entities/user.entity';
+import { Admin } from '../../modules/admin/entities/admin.entity';
 
 dotenv.config();
 
@@ -74,6 +75,7 @@ export const seed = async (): Promise<void> => {
     }
 
     const userRepo = AppDataSource.getRepository(User);
+    const adminRepo = AppDataSource.getRepository(Admin);
     const adminEmail = 'admin@greenwich.edu';
     const adminPassword = 'secret';
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
@@ -92,11 +94,16 @@ export const seed = async (): Promise<void> => {
     });
 
     if (!existingAdmin) {
-      await userRepo.save({
+      const adminUser = await userRepo.save({
         email: adminEmail,
-        password: hashedPassword,
         roleId: adminRole.id,
         campusId: hcmCampus.id,
+      });
+
+      // Create admin record with password
+      await adminRepo.save({
+        userId: adminUser.id,
+        password: hashedPassword,
       });
     }
   } finally {

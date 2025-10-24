@@ -20,6 +20,7 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { GuardianModule } from './modules/guardian/guardian.module';
 import { StaffModule } from './modules/staff/staff.module';
 import { TermModule } from './modules/term/term.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { TermModule } from './modules/term/term.module';
     }),
     UserModule,
     AuthModule,
+    AdminModule,
     StudentModule,
     CourseModule,
     CampusModule,

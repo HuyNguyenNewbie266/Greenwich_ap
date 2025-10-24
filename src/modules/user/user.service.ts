@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { Role } from './entities/role.entity';
 import { Campus } from './entities/campus.entity';
@@ -33,15 +32,12 @@ export class UserService {
     if (dto.campusId && !campus)
       throw new NotFoundException('Campus not found');
 
-    const hashed = dto.password ? await bcrypt.hash(dto.password, 10) : null;
-
     const ent = this.userRepo.create({
       roleId: role.id,
       role,
       campusId: campus ? campus.id : null,
       campus: campus ?? null,
       email: dto.email,
-      password: hashed,
       givenName: dto.givenName ?? null,
       surname: dto.surname ?? null,
       gender: dto.gender ?? 'UNSPECIFIED',
@@ -108,14 +104,14 @@ export class UserService {
    */
   async findOneWithRoleData(
     id: number,
-  ): Promise<(User & { staff?: Staff; student?: Student }) | null> {
+  ): Promise<User & { staff?: Staff; student?: Student }> {
     const user = await this.userRepo.findOne({
       where: { id },
       relations: ['role', 'campus'],
     });
 
     if (!user) {
-      return null;
+      throw new NotFoundException('User not found by ID');
     }
 
     return this.attachRoleSpecificData(user);
@@ -142,25 +138,6 @@ export class UserService {
 
     if (!user) {
       throw new NotFoundException('User not found by email');
-    }
-
-    return this.attachRoleSpecificData(user);
-  }
-
-  /**
-   * Find user by refresh token with role-specific data (staff/student) eager loaded
-   * This prevents N+1 queries during token refresh
-   */
-  async findByRefreshTokenWithRoleData(
-    refreshToken: string,
-  ): Promise<(User & { staff?: Staff; student?: Student }) | null> {
-    const user = await this.userRepo.findOne({
-      where: { refreshToken },
-      relations: ['role', 'campus'],
-    });
-
-    if (!user) {
-      return null;
     }
 
     return this.attachRoleSpecificData(user);
@@ -213,10 +190,6 @@ export class UserService {
       if (!campus) throw new NotFoundException('Campus not found');
       user.campusId = campus.id;
       user.campus = campus;
-    }
-
-    if (dto.password) {
-      user.password = await bcrypt.hash(dto.password, 10);
     }
 
     if (dto.givenName !== undefined) user.givenName = dto.givenName ?? null;
@@ -278,6 +251,21 @@ export class UserService {
     return { success: true };
   }
 
+  async findByRefreshTokenWithRoleData(
+    refreshToken: string,
+  ): Promise<User & { staff?: Staff; student?: Student }> {
+    const user = await this.userRepo.findOne({
+      where: { refreshToken },
+      relations: ['role', 'campus'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found by refresh token');
+    }
+
+    return this.attachRoleSpecificData(user);
+  }
+
   async updateRefreshToken(
     userId: number,
     refreshToken: string,
@@ -301,15 +289,15 @@ export class UserService {
   }
 
   async clearExpiredRefreshTokens(): Promise<void> {
-    await this.userRepo.update(
-      {
-        refreshTokenExpiresAt: new Date(),
-      },
-      {
+    await this.userRepo
+      .createQueryBuilder()
+      .update(User)
+      .set({
         refreshToken: null,
         refreshTokenExpiresAt: null,
-      },
-    );
+      })
+      .where('refresh_token_expires_at <= :now', { now: new Date() })
+      .execute();
   }
 
   async findRoleByName(name: string): Promise<Role> {

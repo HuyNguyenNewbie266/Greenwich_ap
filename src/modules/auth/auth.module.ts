@@ -14,6 +14,7 @@ import { Campus } from '../user/entities/campus.entity';
 import { RolesGuard } from './guards/roles.guard';
 import { StaffModule } from '../staff/staff.module';
 import { StudentModule } from '../student/student.module';
+import { AdminModule } from '../admin/admin.module';
 import { TempAuthCode } from './entities/temp-auth-code.entity';
 
 @Module({
@@ -27,6 +28,7 @@ import { TempAuthCode } from './entities/temp-auth-code.entity';
     UserModule,
     StaffModule,
     StudentModule,
+    AdminModule,
   ],
   controllers: [AuthController],
   providers: [
