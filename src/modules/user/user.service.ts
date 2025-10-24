@@ -296,7 +296,7 @@ export class UserService {
         refreshToken: null,
         refreshTokenExpiresAt: null,
       })
-      .where('refresh_token_expires_at < :now', { now: new Date() })
+      .where('refresh_token_expires_at <= :now', { now: new Date() })
       .execute();
   }
 
