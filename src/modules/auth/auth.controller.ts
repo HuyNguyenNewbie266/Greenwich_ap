@@ -83,6 +83,7 @@ export class AuthController {
     @Body() body: { code: string },
     @Res() res: Response,
   ): Promise<{ message: string }> {
+    console.log(body.code);
     const userData = this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
