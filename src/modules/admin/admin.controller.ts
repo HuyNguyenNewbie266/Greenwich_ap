@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiController,
@@ -81,7 +82,7 @@ export class AdminController {
     // Verify user exists and is admin
     const user = await this.userService.findOne(id);
     if (user.role?.name !== 'Admin') {
-      throw new Error('User is not an admin');
+      throw new UnauthorizedException('User is not an admin');
     }
 
     await this.adminService.updatePassword(id, dto.password);
