@@ -12,19 +12,20 @@ import { Student } from '../student/entities/student.entity';
 import { randomBytes, randomUUID } from 'crypto';
 import { StaffService } from '../staff/staff.service';
 import { StudentService } from '../student/student.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, LessThan } from 'typeorm';
+import { TempAuthCode } from './entities/temp-auth-code.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class AuthService {
-  private tempCodes = new Map<
-    string,
-    { data: GoogleUserDto; expiresAt: number }
-  >();
-
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly staffService: StaffService,
     private readonly studentService: StudentService,
+    @InjectRepository(TempAuthCode)
+    private readonly tempAuthCodeRepository: Repository<TempAuthCode>,
   ) {}
 
   async handleGoogleLogin(profile: GoogleUserDto): Promise<LoginResponseDto> {
@@ -247,25 +248,55 @@ export class AuthService {
     }
   }
 
-  createAuthCode(user: GoogleUserDto): string {
+  async createAuthCode(user: GoogleUserDto): Promise<string> {
     const code = randomUUID();
-    const expiresAt = Date.now() + 60 * 1000; // 1 minute expiry
-    this.tempCodes.set(code, { data: user, expiresAt });
-    console.log(this.tempCodes);
+    const expiresAt = new Date(Date.now() + 60 * 1000); // 1 minute expiry
+
+    const tempAuthCode = this.tempAuthCodeRepository.create({
+      code,
+      email: user.email,
+      expiresAt,
+    });
+
+    await this.tempAuthCodeRepository.save(tempAuthCode);
     return code;
   }
 
-  verifyAuthCode(code: string): GoogleUserDto | null {
-    const entry = this.tempCodes.get(code);
+  async verifyAuthCode(code: string): Promise<GoogleUserDto | null> {
+    const entry = await this.tempAuthCodeRepository.findOne({
+      where: { code },
+    });
 
-    if (!entry) throw new UnauthorizedException('Invalid auth code');
+    if (!entry) {
+      throw new UnauthorizedException('Invalid auth code');
+    }
 
-    if (Date.now() > entry.expiresAt) {
-      this.tempCodes.delete(code);
+    if (new Date() > entry.expiresAt) {
+      await this.tempAuthCodeRepository.delete({ code });
       throw new UnauthorizedException('Auth code expired');
     }
 
-    this.tempCodes.delete(code); // one-time use
-    return entry.data;
+    await this.tempAuthCodeRepository.delete({ code }); // one-time use
+
+    return {
+      email: entry.email,
+      surname: '',
+      givenName: '',
+      avatarUrl: '',
+    };
+  }
+
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  async cleanupExpiredAuthCodes(): Promise<void> {
+    try {
+      const result = await this.tempAuthCodeRepository.delete({
+        expiresAt: LessThan(new Date()),
+      });
+      if (result.affected && result.affected > 0) {
+        console.log(`Cleaned up ${result.affected} expired auth codes`);
+      }
+    } catch (err: unknown) {
+      console.error('Error cleaning up expired auth codes:', err);
+    }
   }
 }

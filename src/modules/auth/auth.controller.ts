@@ -68,11 +68,11 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Handle Google OAuth callback' })
   @CommonApiResponses()
-  googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
+  async googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
     if (!req.user || !req.user.email) {
       throw new Error('Google authentication failed');
     }
-    const authCode = this.authService.createAuthCode(req.user);
+    const authCode = await this.authService.createAuthCode(req.user);
 
     const redirectUrl = `${process.env.FRONTEND_URL}/auth/bridge?code=${authCode}`;
     return res.redirect(redirectUrl);
@@ -83,7 +83,7 @@ export class AuthController {
     @Body() body: { code: string },
     @Res() res: Response,
   ): Promise<{ message: string }> {
-    const userData = this.authService.verifyAuthCode(body.code);
+    const userData = await this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
     }

@@ -14,6 +14,7 @@ import { Campus } from '../user/entities/campus.entity';
 import { RolesGuard } from './guards/roles.guard';
 import { StaffModule } from '../staff/staff.module';
 import { StudentModule } from '../student/student.module';
+import { TempAuthCode } from './entities/temp-auth-code.entity';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { StudentModule } from '../student/student.module';
       secret: process.env.JWT_SECRET ?? 'your-super-secret-key-here',
       signOptions: { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '15m' },
     }),
-    TypeOrmModule.forFeature([User, Role, Campus]),
+    TypeOrmModule.forFeature([User, Role, Campus, TempAuthCode]),
     UserModule,
     StaffModule,
     StudentModule,
