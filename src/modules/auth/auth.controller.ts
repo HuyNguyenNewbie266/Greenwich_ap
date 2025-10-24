@@ -68,7 +68,10 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @ApiOperation({ summary: 'Handle Google OAuth callback' })
   @CommonApiResponses()
-  async googleCallback(@Req() req: GoogleAuthRequest, @Res() res: Response) {
+  async googleCallback(
+    @Req() req: GoogleAuthRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!req.user || !req.user.email) {
       throw new Error('Google authentication failed');
     }
@@ -160,7 +163,7 @@ export class AuthController {
   @CommonApiResponses()
   async logout(
     @Req() req: JwtAuthRequest,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<{ message: string }> {
     if (!req.user) {
       throw new Error('No authenticated user found');
