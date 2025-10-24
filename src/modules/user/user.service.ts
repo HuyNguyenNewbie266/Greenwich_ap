@@ -140,8 +140,6 @@ export class UserService {
       relations: ['role', 'campus'],
     });
 
-    console.log('User found:', user);
-
     if (!user) {
       throw new NotFoundException('User not found by email');
     }
@@ -285,7 +283,6 @@ export class UserService {
     refreshToken: string,
     expiresAt: Date,
   ): Promise<void> {
-    console.log(123);
     try {
       await this.userRepo.update(userId, {
         refreshToken,

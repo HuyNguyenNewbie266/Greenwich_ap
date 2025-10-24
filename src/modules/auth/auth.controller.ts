@@ -83,14 +83,12 @@ export class AuthController {
     @Body() body: { code: string },
     @Res() res: Response,
   ): Promise<{ message: string }> {
-    console.log('Code:', body.code);
     const userData = this.authService.verifyAuthCode(body.code);
     if (!userData) {
       throw new UnauthorizedException('Invalid or expired code');
     }
 
     const tokens = await this.authService.handleGoogleLogin(userData);
-    console.log('Generated tokens:', tokens);
 
     const cookieOptions = {
       httpOnly: true,
@@ -99,7 +97,6 @@ export class AuthController {
       path: '/',
     };
 
-    console.log('Cookie options:', cookieOptions);
     res.cookie('access_token', tokens.accessToken, {
       ...cookieOptions,
       maxAge: 15 * 60 * 1000,

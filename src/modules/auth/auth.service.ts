@@ -39,9 +39,7 @@ export class AuthService {
 
       const tokens = await this.generateTokens(user);
 
-      console.log(tokens);
       try {
-        console.log(123);
         await this.userService.updateRefreshToken(
           user.id,
           tokens.refreshToken,
@@ -252,16 +250,15 @@ export class AuthService {
   createAuthCode(user: GoogleUserDto): string {
     const code = randomUUID();
     const expiresAt = Date.now() + 60 * 1000; // 1 minute expiry
-    console.log(124);
     this.tempCodes.set(code, { data: user, expiresAt });
     return code;
   }
 
   verifyAuthCode(code: string): GoogleUserDto | null {
     const entry = this.tempCodes.get(code);
-    console.log(code, '123');
+
     if (!entry) throw new UnauthorizedException('Invalid auth code');
-    console.log('haha');
+
     if (Date.now() > entry.expiresAt) {
       this.tempCodes.delete(code);
       throw new UnauthorizedException('Auth code expired');
